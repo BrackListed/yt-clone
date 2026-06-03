@@ -1,11 +1,13 @@
 import { SignIn, SignUp, useAuth, UserButton } from "@clerk/clerk-react";
-import { Bell, Mic, Plus, Search } from "lucide-react";
+import { Bell, Mic, Plus, Search, SquarePlay } from "lucide-react";
 import { useState } from "react";
+import { Link } from "react-router-dom";
 
 export function Main(){
     const {isSignedIn} = useAuth()
     const [toggleSignIn, setToggleSignIn] = useState(false)
     const [toggleSignUp, setToggleSignUp] = useState(false)
+    const [showUpload, setShowUpload] = useState(false)
     return(
         <div className="flex-1 w-full h-full py-1">
             <div className="h-1/12 flex justify-center items-center">
@@ -15,7 +17,12 @@ export function Main(){
                 </div>
                 <div className="p-3 bg-neutral-800 mx-3 rounded-full h-10 flex items-center"><Mic/></div>
                 <div className="flex mx-10 h-full items-center">
-                    <div className="flex bg-neutral-800 p-2 rounded-full hover:bg-neutral-700 gap-2 hover:cursor-pointer"><Plus/>Create</div>
+                    <div className="relative">
+                        <div onBlur={() => setShowUpload(false)} onClick={() => {if(!showUpload){setShowUpload(true)} else{setShowUpload(false)}}} className="flex bg-neutral-800 p-2 rounded-full hover:bg-neutral-700 gap-2 hover:cursor-pointer"><Plus/>Create</div>
+                        {showUpload && <div className="absolute top-12 right-0 bg-neutral-800 rounded-xl shadow-lg p-2 flex flex-col gap-1 w-44 z-50">
+                                <Link to = "/create"><div className="flex items-center gap-3 px-3 py-2 hover:bg-neutral-700 rounded-lg cursor-pointer"><SquarePlay/>Upload video</div></Link>
+                            </div>}
+                    </div>
                     <div className="relative mx-4 hover:bg-neutral-700 hover:cursor-pointer rounded-full p-2"><Bell/><span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs w-4 h-4 rounded-full flex items-center justify-center">1</span></div>
                     {isSignedIn === false && <button onClick = {() => setToggleSignIn(true)}className="bg-blue-600 hover:bg-blue-700 text-white h-10 font-medium p-2 rounded transition-colors">Sign In</button>}
                     {isSignedIn === false && <button onClick = {() => setToggleSignUp(true)}className="bg-zinc-200 hover:bg-zinc-300 text-zinc-800 h-10 font-medium p-2 flex-1 rounded transition-colors">Sign Up</button>}
