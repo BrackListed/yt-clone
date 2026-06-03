@@ -8,8 +8,8 @@ export function Left(){
     const [moreExplore, setMoreExplore] = useState(false)
     return(
         <div className="w-2/12 h-screen overflow-y-auto flex flex-col">
-            <div className="h-1/12 border-2 border-amber-50 flex items-center px-2 py-1 gap-5"><div className="hover:bg-zinc-600 p-2 rounded-full hover:cursor-pointer" onClick={() => {if(hideSide === false){setHideSide(true)} else{setHideSide(false)}}}><TextAlignJustify/></div><img className="w-1/2 h-auto" src = "/icon.png" alt = "youtube-icon"></img></div>
-            {hideSide === false &&<div className="flex flex-col gap-5 px-4 py-6">
+            <div className="h-1/12 flex items-center px-2 py-1 gap-5"><div className="hover:bg-zinc-600 p-2 rounded-full hover:cursor-pointer" onClick={() => {if(hideSide === false){setHideSide(true)} else{setHideSide(false)}}}><TextAlignJustify/></div><img className="w-1/2 h-auto" src = "/icon.png" alt = "youtube-icon"></img></div>
+            {hideSide === false &&<div className="flex flex-col gap-5 px-4">
                     <div className="flex flex-col gap-4 border-b border-zinc-800 py-5">
                         <div className="flex gap-5 hover:cursor-pointer hover:bg-zinc-700 hover:ring-8 hover:ring-zinc-700 rounded-sm"><Home/>Home</div>
                         <div className="flex gap-5 hover:cursor-pointer hover:bg-zinc-700 hover:ring-8 hover:ring-zinc-700 rounded-sm"><SiYoutubeshorts/>Shorts</div> 
