@@ -20,7 +20,7 @@ export function Main(){
                     {isSignedIn === false && <button onClick = {() => setToggleSignIn(true)}className="bg-blue-600 hover:bg-blue-700 text-white h-10 font-medium p-2 rounded transition-colors">Sign In</button>}
                     {isSignedIn === false && <button onClick = {() => setToggleSignUp(true)}className="bg-zinc-200 hover:bg-zinc-300 text-zinc-800 h-10 font-medium p-2 flex-1 rounded transition-colors">Sign Up</button>}
                     {isSignedIn && <div className="flex gap-2 items-center justify-start">
-                    <UserButton appearance={{ elements: { avatarBox: { width: "80px", height: "80px" } } }} />
+                    <UserButton appearance={{ elements: { avatarBox: { width: "40px", height: "40px" } } }} />
                     </div>}
                 </div>
                 {(toggleSignIn || toggleSignUp) && <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm">
