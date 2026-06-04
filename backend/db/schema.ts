@@ -16,6 +16,7 @@ export const uploads = pgTable("uploads", {
     video_url: text("video_url").notNull().unique(),
     title: text("title").notNull(),
     duration: text('duration').notNull(),
+    thumbnail: text('thumbnail').notNull(),
     likes: integer("likes").notNull().default(0),
     dislikes: integer("dislikes").notNull().default(0),
     created_at: timestamp("created_at", {withTimezone: true}).defaultNow().notNull()

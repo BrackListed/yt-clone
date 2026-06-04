@@ -17,22 +17,24 @@ interface VideosType{
     user_id: string
     video_url: string
     title: string
+    duration: string
+    thumbnail: string
     created_at: string
+    likes: number
 }
 
 export function CreateMain({showDashboard, setShowDashboard, showVideos, setShowVideos, showAnalytics, setShowAnalytics}: CreateMainProps){
     const [videos, setVideos] = useState<VideosType[]>([])
-    const {userId} = useAuth()
-    const userVideos = videos.filter((v) => v.user_id === userId)
+    const {getToken} = useAuth()
     useEffect(() => {
         const fetchExpressData = async() => {
-            const response = await axios.get("http://localhost:5000/upload")
+            const token = await getToken()
+            const response = await axios.get("http://localhost:5000/upload", {headers: {Authorization: `Bearer ${token}`}})
             setVideos(response.data)
+            console.log(response.data)
         }
         fetchExpressData()
     }, [])
-
-
     return(
         <div className="flex-1 mx-10 pt-10">
             {showDashboard &&<div className="flex flex-col">
@@ -68,46 +70,47 @@ export function CreateMain({showDashboard, setShowDashboard, showVideos, setShow
                 <div className="flex">
                     <div id = "video-column" className="w-7/12 flex flex-col">
                         <span className="flex items-center border-b h-12 border-white/10 text-sm text-gray-500">Video</span>
-                        <div className="flex gap-5">
+                        {videos.map((video) => (<div className="flex gap-5">
                             <div className="relative w-40 h-25 my-2 shrink-0">
-                                <img src = "/esquie.jpg" className="w-full h-full rounded-lg object-cover"></img>
-                                <span className="absolute bottom-1 right-1 bg-black/80 text-white text-[10px] font-medium px-1.5 py-0.5 rounded-sm">0:52</span>
+                                <img src = {video.thumbnail} className="w-full h-full rounded-lg object-cover"></img>
+                                <span className="absolute bottom-1 right-1 bg-black/80 text-white text-[10px] font-medium px-1.5 py-0.5 rounded-sm">{video.duration}</span>
                             </div>
                             <div className="flex flex-col gap-2 justify-center">
-                                <span>Video Title Placeholder</span>
+                                <span>{video.title}</span>
                                 <span></span>
                             </div>
-                        </div>
+                        </div>))}
                     </div>
                 
                     <div id = "date-column" className="flex flex-col w-1/6">
                         <span className="flex items-center border-b h-12 border-white/10 text-sm text-gray-500">Date <ChevronDown/></span>
-                        <div className="flex flex-col gap-2 h-25 my-2 justify-center">
-                            <span>June 4, 2026</span>
+                        {videos.map((video) => (<div className="flex flex-col gap-2 h-25 my-2 justify-center">
+                            <span>{new Date(video.created_at).toLocaleDateString()}</span>
                             <span className="text-sm text-gray-600">Date Uploaded</span>
-                        </div>
+                        </div>))}
                     </div>
 
                     <div id = "views-column" className="flex flex-col w-1/12">
                         <span className="flex items-center justify-center border-b h-12 border-white/10 text-sm text-gray-500">Views</span>
                         <div className="flex flex-col gap-2 h-25 justify-center items-center">
-                            <span>0</span>
+                            <span></span>
                         </div>
                     </div>
 
                     <div id = "comments-column" className="flex flex-col w-1/12">
                         <span className="flex items-center justify-center border-b h-12 border-white/10 text-sm text-gray-500">Comments</span>
                         <div className="flex flex-col gap-2 h-25 justify-center items-center">
-                            <span>0</span>
+                            <span></span>
                         </div>
                     </div>
 
-                    <div id = "likes-column" className="flex flex-col w-1/12">
-                        <span className="flex items-center justify-center border-b h-12 border-white/10 text-sm text-gray-500">Likes</span>
+                    {videos.map((video) => (<div id = "likes-column" className="flex flex-col w-1/12">
+                        <span className="flex items-center justify-center border-b h-12 border-white/10 text-sm text-gray-500">{video.likes}</span>
                         <div className="flex flex-col gap-2 h-25 justify-center items-center">
-                            <span>0</span>
+                            <span></span>
                         </div>
-                    </div>
+                    </div>))}
+
                 </div>
 
             </div>}

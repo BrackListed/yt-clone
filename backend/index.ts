@@ -42,18 +42,26 @@ const upload = multer({ storage: storage })
 app.post("/upload", upload.single('video'), async(req, res) => {
   try{
     const {userId} = getAuth(req)
+    const id = await pool.query("SELECT id FROM users WHERE clerk_user_id = $1", [userId])
     const result = await cloudinary.uploader.upload(req.file!.path, {resource_type: "video", upload_preset: "ml_default"}) as any
     const minutes = Math.floor(result.duration / 60)
     const seconds = Math.floor(result.duration % 60)
     const duration = `${minutes}:${seconds.toString().padStart(2, '0')}`
+    const thumbnail = result.secure_url.replace('/video/upload', '/video/upload/so_0/').replace('.mp4', '.jpg')
     console.log(JSON.stringify(result)) 
-    await pool.query("INSERT INTO uploads(user_id, video_url, title, duration) VALUES($1, $2, $3 $4)", [userId, result.secure_url, result.display_name, duration])
+    await pool.query("INSERT INTO uploads(user_id, video_url, title, duration, thumbnail) VALUES($1, $2, $3, $4, $5)", [id.rows[0].id, result.secure_url, result.display_name, duration, thumbnail])
     fs.unlinkSync(req.file!.path)
   } catch(err){
     console.log(err)
     res.status(500).json({error: err})
   }
+})
 
+app.get("/upload", async(req, res) => {
+  const {userId} = getAuth(req)
+  const id = await pool.query("SELECT id FROM users WHERE clerk_user_id = $1", [userId])
+  const result = await pool.query("SELECT * FROM uploads WHERE user_id = $1", [id.rows[0].id])
+  res.json(result.rows)
 })
 
 app.post('/clerk/webhooks', express.raw({ type: 'application/json' }), async (req, res) => {
@@ -73,6 +81,8 @@ app.post('/clerk/webhooks', express.raw({ type: 'application/json' }), async (re
     return res.status(400).send('Error verifying webhook')
   }
 })
+
+
 
 
 app.listen(5000, () => console.log('Listening on http://localhost:5000'));

@@ -1,4 +1,4 @@
-import { ClerkProvider, UserButton } from "@clerk/clerk-react";
+import { useAuth, UserButton } from "@clerk/clerk-react";
 import { SiYoutube } from "@icons-pack/react-simple-icons";
 import { Search, TextAlignJustify, UploadIcon, Video, X } from "lucide-react";
 import { useState } from "react";
@@ -13,8 +13,8 @@ export function Create(){
     const [showDashboard, setShowDashboard] = useState(true)
     const [showVideos, setShowVideos] = useState(false)
     const [showAnalytics, setShowAnalytics] = useState(false)
+    const {getToken} = useAuth()
     return(
-        <ClerkProvider publishableKey={import.meta.env.VITE_CLERK_PUBLISHABLE_KEY}>
         <div className="bg-neutral-800 text-[#f1f1f1] min-h-screen font-sans flex flex-col selection:bg-zinc-700">
             {showModal && <div className="fixed inset-0 bg-black/60 z-100 flex items-center justify-center p-4">
                 <div className="w-full max-w-4xl h-[80vh] bg-[#282828] border border-zinc-700 rounded-xl flex flex-col overflow-hidden">
@@ -79,13 +79,13 @@ export function Create(){
                 />
             </div>
         </div>
-        </ClerkProvider>
     )
 
     async function uploadVideo(e: React.ChangeEvent<HTMLInputElement>){
+        const token = await getToken()
         const video = e.target.files![0]
         const formData = new FormData()
         formData.append("video", video)
-        await axios.post("http://localhost:5000/upload", formData) 
+        await axios.post("http://localhost:5000/upload", formData, {headers: {Authorization: `Bearer ${token}`}}) 
     }
 }
