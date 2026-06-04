@@ -5,7 +5,8 @@ import { clerkMiddleware } from '@clerk/express'
 import { verifyWebhook } from "@clerk/express/webhooks"
 import { Pool } from "pg"
 import { drizzle } from "drizzle-orm/node-postgres"
-
+import cloudinary from "cloudinary"
+import multer from "multer"
 
 const app = express()
 app.use(cors({origin: ["http://localhost:5173"], credentials: true}))
@@ -15,8 +16,23 @@ app.use(express.json())
 const pool = new Pool({connectionString: process.env.DATABASE_URL})
 const db = drizzle(process.env.DATABASE_URL!)
 
+
 app.get("/hello", async (req, res) => {
     res.json({message: "Hello"})
+})
+
+const storage = multer.diskStorage({
+  destination: function (req, file, cb) {
+    cb(null, 'uploads/')
+  },
+  filename: function (req, file, cb) {
+    cb(null, file.originalname)
+  }
+})
+
+const upload = multer({ storage: storage })
+app.post("/upload", upload.single('video'), async(req, res) => {
+  res.json(req.file)
 })
 
 app.post('/clerk/webhooks', express.raw({ type: 'application/json' }), async (req, res) => {
