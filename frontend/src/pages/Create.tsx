@@ -3,6 +3,7 @@ import { SiYoutube } from "@icons-pack/react-simple-icons";
 import { Search, TextAlignJustify, UploadIcon, Video, X } from "lucide-react";
 import { useState } from "react";
 import axios from "axios"
+import { CreateLeft } from "../assets/CreateLeft";
 
 
 export function Create(){
@@ -55,6 +56,7 @@ export function Create(){
                     <UserButton appearance={{elements: {avatarBox: {width: "40px",height: "40px"}}}}/>
                 </div>
             </div>
+            <CreateLeft/>
         </div>
         </ClerkProvider>
     )

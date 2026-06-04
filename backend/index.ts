@@ -1,12 +1,13 @@
 import "dotenv/config"
 import express from "express"
 import cors from "cors"
-import { clerkMiddleware } from '@clerk/express'
+import { clerkMiddleware, getAuth } from '@clerk/express'
 import { verifyWebhook } from "@clerk/express/webhooks"
 import { Pool } from "pg"
 import { drizzle } from "drizzle-orm/node-postgres"
-import cloudinary from "cloudinary"
+import { v2 as cloudinary } from "cloudinary"
 import multer from "multer"
+import fs from "fs"
 
 const app = express()
 app.use(cors({origin: ["http://localhost:5173"], credentials: true}))
@@ -15,6 +16,13 @@ app.use(express.json())
 
 const pool = new Pool({connectionString: process.env.DATABASE_URL})
 const db = drizzle(process.env.DATABASE_URL!)
+
+
+cloudinary.config({
+  cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+  api_key: process.env.CLOUDINARY_API_KEY,
+  api_secret: process.env.CLOUDINARY_API_SECRET,
+})
 
 
 app.get("/hello", async (req, res) => {
@@ -32,7 +40,17 @@ const storage = multer.diskStorage({
 
 const upload = multer({ storage: storage })
 app.post("/upload", upload.single('video'), async(req, res) => {
-  res.json(req.file)
+  try{
+    const {userId} = getAuth(req)
+    const result = await cloudinary.uploader.upload(req.file!.path, {resource_type: "video", upload_preset: "ml_default"}) as any
+    console.log(JSON.stringify(result)) 
+    await pool.query("INSERT INTO uploads(user_id, video_url, title) VALUES($1, $2, $3)", [userId, result.secure_url, result.display_name])
+    fs.unlinkSync(req.file!.path)
+  } catch(err){
+    console.log(err)
+    res.status(500).json({error: err})
+  }
+
 })
 
 app.post('/clerk/webhooks', express.raw({ type: 'application/json' }), async (req, res) => {
