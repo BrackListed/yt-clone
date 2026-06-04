@@ -43,8 +43,11 @@ app.post("/upload", upload.single('video'), async(req, res) => {
   try{
     const {userId} = getAuth(req)
     const result = await cloudinary.uploader.upload(req.file!.path, {resource_type: "video", upload_preset: "ml_default"}) as any
+    const minutes = Math.floor(result.duration / 60)
+    const seconds = Math.floor(result.duration % 60)
+    const duration = `${minutes}:${seconds.toString().padStart(2, '0')}`
     console.log(JSON.stringify(result)) 
-    await pool.query("INSERT INTO uploads(user_id, video_url, title) VALUES($1, $2, $3)", [userId, result.secure_url, result.display_name])
+    await pool.query("INSERT INTO uploads(user_id, video_url, title, duration) VALUES($1, $2, $3 $4)", [userId, result.secure_url, result.display_name, duration])
     fs.unlinkSync(req.file!.path)
   } catch(err){
     console.log(err)

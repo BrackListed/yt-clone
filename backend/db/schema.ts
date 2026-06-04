@@ -1,5 +1,5 @@
 import { relations } from "drizzle-orm";
-import { pgTable, uuid, text, timestamp } from "drizzle-orm/pg-core";
+import { pgTable, uuid, text, timestamp, integer } from "drizzle-orm/pg-core";
 
 
 export const users = pgTable("users", {
@@ -15,6 +15,9 @@ export const uploads = pgTable("uploads", {
     user_id: uuid("user_id").references(() => users.id, {onDelete: "cascade"}),
     video_url: text("video_url").notNull().unique(),
     title: text("title").notNull(),
+    duration: text('duration').notNull(),
+    likes: integer("likes").notNull().default(0),
+    dislikes: integer("dislikes").notNull().default(0),
     created_at: timestamp("created_at", {withTimezone: true}).defaultNow().notNull()
 })
 

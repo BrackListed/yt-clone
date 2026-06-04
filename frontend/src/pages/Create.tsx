@@ -4,11 +4,15 @@ import { Search, TextAlignJustify, UploadIcon, Video, X } from "lucide-react";
 import { useState } from "react";
 import axios from "axios"
 import { CreateLeft } from "../assets/CreateLeft";
+import { CreateMain } from "../assets/CreateMain";
 
 
 export function Create(){
     const [toggleUpload, setToggleUpload] = useState(false)
     const [showModal, setShowModal] = useState(false)
+    const [showDashboard, setShowDashboard] = useState(true)
+    const [showVideos, setShowVideos] = useState(false)
+    const [showAnalytics, setShowAnalytics] = useState(false)
     return(
         <ClerkProvider publishableKey={import.meta.env.VITE_CLERK_PUBLISHABLE_KEY}>
         <div className="bg-neutral-800 text-[#f1f1f1] min-h-screen font-sans flex flex-col selection:bg-zinc-700">
@@ -56,7 +60,24 @@ export function Create(){
                     <UserButton appearance={{elements: {avatarBox: {width: "40px",height: "40px"}}}}/>
                 </div>
             </div>
-            <CreateLeft/>
+            <div className="pt-14 flex w-screen">
+                <CreateLeft
+                showDashboard = {showDashboard}
+                setShowDashboard = {setShowDashboard}
+                showVideos = {showVideos}
+                setShowVideos = {setShowVideos}
+                showAnalytics = {showAnalytics}
+                setShowAnalytics = {setShowAnalytics}
+                />
+                <CreateMain
+                showDashboard = {showDashboard}
+                setShowDashboard = {setShowDashboard}
+                showVideos = {showVideos}
+                setShowVideos = {setShowVideos}
+                showAnalytics = {showAnalytics}
+                setShowAnalytics = {setShowAnalytics}
+                />
+            </div>
         </div>
         </ClerkProvider>
     )
