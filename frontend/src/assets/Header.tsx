@@ -16,7 +16,7 @@ export function Header({hideSide, setHideSide}: HeaderProps){
 
     return(
         <div className="h-1/12 flex justify-between items-center w-full">
-            <Link to = "/"><div className="h-1/12 flex items-center px-2 py-1 gap-5"><div className="hover:bg-zinc-600 p-2 rounded-full hover:cursor-pointer" onClick={() => {if(hideSide === false){setHideSide(true)} else{setHideSide(false)}}}>{hideSide && <TextAlignJustify/>}</div>{hideSide && <img className="w-34 h-auto" src = "/icon.png" alt = "youtube-icon"></img>}</div></Link>
+            <div className="h-1/12 flex items-center px-2 py-1 gap-5"><div className="hover:bg-zinc-600 p-2 rounded-full hover:cursor-pointer" onClick={() => {if(hideSide === false){setHideSide(true)} else{setHideSide(false)}}}>{hideSide && <TextAlignJustify/>}</div>{hideSide && <Link to = "/"><img className="w-34 h-auto" src = "/icon.png" alt = "youtube-icon"></img></Link>}</div>
             <div className=" rounded-full flex w-1/2">
                 <input placeholder="Search" className="ring-inset border-2 h-10 bg-neutral-900 border-gray-500/5 flex-1 py-2 px-4 rounded-l-full outline-none focus-visible:ring-1 focus-visible:ring-blue-400 rounded-r-none"></input>
                 <div className="bg-neutral-800 p-3 rounded-r-full flex items-center h-10"><Search/></div>
