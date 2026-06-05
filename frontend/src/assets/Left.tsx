@@ -3,11 +3,16 @@ import { ChevronDown, ChevronRight, ChevronUp, Clapperboard, Clock, Download, Fl
 import { useState } from "react";
 
 
-export function Left(){
-    const [hideSide, setHideSide] = useState(false)
+
+interface LeftProps{
+    hideSide: boolean
+    setHideSide: (value: boolean) => void
+}
+
+export function Left({hideSide, setHideSide}: LeftProps){
     const [moreExplore, setMoreExplore] = useState(false)
     return(
-        <div className="w-2/12 h-screen overflow-y-auto flex flex-col">
+        <div className={`fixed w-2/12 h-screen overflow-y-auto flex flex-col z-50 ${hideSide ? "" : "bg-zinc-900"}`}>
             <div className="h-1/12 flex items-center px-2 py-1 gap-5"><div className="hover:bg-zinc-600 p-2 rounded-full hover:cursor-pointer" onClick={() => {if(hideSide === false){setHideSide(true)} else{setHideSide(false)}}}><TextAlignJustify/></div><img className="w-1/2 h-auto" src = "/icon.png" alt = "youtube-icon"></img></div>
             {hideSide === false &&<div className="flex flex-col gap-5 px-4">
                     <div className="flex flex-col gap-4 border-b border-zinc-800 py-5">
@@ -62,7 +67,7 @@ export function Left(){
                     </div>
             </div>}
             {hideSide && <div className="flex flex-col gap-5">
-                OI    
+                    
             </div>}
 
         </div>
