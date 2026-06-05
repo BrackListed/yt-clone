@@ -1,13 +1,55 @@
 import { SignIn, SignUp, useAuth, UserButton } from "@clerk/clerk-react";
 import { Bell, Mic, Plus, Search, SquarePlay } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
+import axios from "axios"
+
+interface VideosType{
+    id: string
+    user_id: string
+    video_url: string
+    title: string
+    duration: string
+    thumbnail: string
+    created_at: string
+    likes: number
+}
+
+interface UserType {
+    id: string
+    clerk_user_id: string
+    email: string
+    username: string
+    created_at: string
+    image_url: string
+}
 
 export function Main(){
     const {isSignedIn} = useAuth()
     const [toggleSignIn, setToggleSignIn] = useState(false)
     const [toggleSignUp, setToggleSignUp] = useState(false)
     const [showUpload, setShowUpload] = useState(false)
+    const [videos, setVideos] = useState<VideosType[]>([])
+    const [users, setUsers] = useState<UserType[]>([])
+    const {getToken} = useAuth()
+
+    useEffect(() => {
+        const fetchExpressData = async() => {
+            const token = getToken()
+            const result = await axios.get("http://localhost:5000/global/upload", {headers: {Authorization: `Bearer ${token}`}})
+            setVideos(result.data)
+        }
+        fetchExpressData()
+    }, [])
+
+    useEffect(() => {
+        const fetchExpressData = async() => {
+            const token = getToken()
+            const result = await axios.get("http://localhost:5000/users", {headers: {Authorization: `Bearer ${token}`}})
+            setUsers(result.data)
+        }
+        fetchExpressData()
+    }, [])
     return(
         <div className="flex-1 w-full h-full py-1">
             <div className="h-1/12 flex justify-center items-center">
@@ -40,6 +82,25 @@ export function Main(){
                         <SignUp/>
                     </div>}
                 </div>}
+            </div>
+            
+            <div className="my-3 flex gap-5 px-10 flex-col overflow-y-auto">
+                <button className="text-zinc-900 bg-white/90 px-5 py-3 rounded-lg font-semibold w-20">All</button>
+                <div className="my-5 flex gap-8 w-full h-full">
+                    {videos.map((video) => {
+                    const uploader = users.find((user) => user.id === video.user_id)
+                    return(
+                    <div className="flex flex-col">
+                        <img src = {video.thumbnail} className="w-90 h-60 rounded-2xl object-cover" alt = "thumbnail"></img>
+                        <div className="flex gap-3 my-5">
+                            <img src = {uploader?.image_url} alt = "profile picture" className="w-10 h-10 rounded-full"></img>
+                            <div className="flex flex-col gap-3">
+                                {video.title}
+                            </div>
+                        </div>
+                    </div>)
+                    })}
+                </div>
             </div>
         </div>
     )

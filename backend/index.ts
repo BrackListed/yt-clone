@@ -57,10 +57,20 @@ app.post("/upload", upload.single('video'), async(req, res) => {
   }
 })
 
+app.get('/global/upload', async(req, res) => {
+  const result = await pool.query("SELECT * FROM uploads")
+  res.json(result.rows)
+})
+
 app.get("/upload", async(req, res) => {
   const {userId} = getAuth(req)
   const id = await pool.query("SELECT id FROM users WHERE clerk_user_id = $1", [userId])
   const result = await pool.query("SELECT * FROM uploads WHERE user_id = $1", [id.rows[0].id])
+  res.json(result.rows)
+})
+
+app.get("/users", async(req, res) => {
+  const result = await pool.query("SELECT * FROM users")
   res.json(result.rows)
 })
 
