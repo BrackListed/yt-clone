@@ -23,6 +23,8 @@ interface VideosType{
     likes: number
 }
 
+
+
 export function CreateMain({showDashboard, setShowDashboard, showVideos, setShowVideos, showAnalytics, setShowAnalytics}: CreateMainProps){
     const [videos, setVideos] = useState<VideosType[]>([])
     const {getToken} = useAuth()
