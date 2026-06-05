@@ -24,11 +24,15 @@ interface UserType {
     image_url: string
 }
 
-export function Main(){
+interface MainProps{
+    hideSide: boolean
+    setHideSide: (value: boolean) => void
+}
+
+export function Main({hideSide, setHideSide}: MainProps){
     const [videos, setVideos] = useState<VideosType[]>([])
     const [users, setUsers] = useState<UserType[]>([])
     const {getToken} = useAuth()
-
     useEffect(() => {
         const fetchExpressData = async() => {
             const token = getToken()
@@ -48,7 +52,10 @@ export function Main(){
     }, [])
     return(
         <div className="flex-1 w-full h-full py-1">
-            <Header/>
+            <Header
+            hideSide = {hideSide}
+            setHideSide = {setHideSide}
+            />
             <div className="my-3 flex gap-5 px-10 flex-col overflow-y-auto">
                 <button className="text-zinc-900 bg-white/90 px-5 py-3 rounded-lg font-semibold w-20">All</button>
                 <div className="my-5 flex gap-8 w-full h-full">

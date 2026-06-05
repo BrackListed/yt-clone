@@ -14,7 +14,7 @@ createRoot(document.getElementById('root')!).render(
       <Routes>
           <Route path = "/" element={<App/>}></Route>
           <Route path = "/create" element={<ClerkProvider publishableKey={import.meta.env.VITE_CLERK_PUBLISHABLE_KEY}><Create/></ClerkProvider>}></Route>
-          <Route path = "/watch/:id" element={<Watch/>}></Route>
+          <Route path = "/watch/:id" element={<ClerkProvider publishableKey={import.meta.env.VITE_CLERK_PUBLISHABLE_KEY}><Watch/></ClerkProvider>}></Route>
       </Routes>
     </BrowserRouter>
   </StrictMode>,
