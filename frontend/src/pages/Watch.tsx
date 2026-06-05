@@ -1,4 +1,4 @@
-import { useParams } from "react-router-dom"
+import { Link, useParams } from "react-router-dom"
 import { Left } from "../assets/Left"
 import { Header } from "../assets/Header"
 import { useAuth } from "@clerk/clerk-react"
@@ -90,7 +90,7 @@ export function Watch(){
                             {videos.map((video) => {
                                 const selectedUser = users.find((user) => user.id === video.user_id)
                                 return(
-                                <div className="flex gap-3">
+                                <Link to = {`/watch/${video.id}`}><div className="flex gap-3">
                                     <img src = {video.thumbnail} className="w-60 h-40 rounded-2xl"></img>
                                     <div className="flex flex-col gap-2">
                                         <span>{video.title}</span>
@@ -99,7 +99,7 @@ export function Watch(){
                                             <span>0 views • {timeAgo(video.created_at)}</span>
                                         </div>
                                     </div>
-                                </div>
+                                </div></Link>
                                 )
                             })}
                         </div>

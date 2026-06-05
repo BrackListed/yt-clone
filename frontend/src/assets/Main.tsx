@@ -62,7 +62,7 @@ export function Main({hideSide, setHideSide}: MainProps){
                     {videos.map((video) => {
                     const uploader = users.find((user) => user.id === video.user_id)
                     return(
-                    <Link to = {`watch/${video.id}`}><div className="flex w-90 flex-col hover:cursor-pointer">
+                    <Link to = {`/watch/${video.id}`}><div className="flex w-90 flex-col hover:cursor-pointer">
                         <div className="w-90 h-52 rounded-2xl overflow-hidden">
                             <img src = {video.thumbnail} className="w-full h-full object-cover" alt = "thumbnail"></img>
                         </div>
