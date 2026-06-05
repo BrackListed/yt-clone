@@ -13,7 +13,7 @@ export default function App(){
         hideSide = {hideSide}
         setHideSide={setHideSide}
         />
-        <div className="flex-1 flex justify-center pl-[16.67%]">
+        <div className={`flex-1 flex justify-center ${hideSide ? "": "pl-[16.67%]"}`}>
           <div className=" border-2 border-zinc-900 h-full w-full">
             <Main
             hideSide = {hideSide}

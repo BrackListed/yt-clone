@@ -13,7 +13,7 @@ export function Left({hideSide, setHideSide}: LeftProps){
     const [moreExplore, setMoreExplore] = useState(false)
     return(
         <div className={`fixed h-screen overflow-y-auto flex flex-col z-50 ${hideSide ? "w-fit" : "w-2/12 bg-zinc-900"}`}>
-            <div className="h-1/12 flex items-center px-2 py-1 gap-5"><div className="hover:bg-zinc-600 p-2 rounded-full hover:cursor-pointer" onClick={() => {if(hideSide === false){setHideSide(true)} else{setHideSide(false)}}}>{hideSide === false && <TextAlignJustify/>}</div>{hideSide === false && <img className="w-1/2 h-auto" src = "/icon.png" alt = "youtube-icon"></img>}</div>
+            <div className="h-1/12 flex items-center px-2 py-1 gap-5"><div className="hover:bg-zinc-600 p-2 rounded-full hover:cursor-pointer" onClick={() => {if(hideSide === false){setHideSide(true)} else{setHideSide(false)}}}>{hideSide === false && <TextAlignJustify/>}</div>{hideSide === false && <img className="w-34 h-auto" src = "/icon.png" alt = "youtube-icon"></img>}</div>
             {hideSide === false &&<div className="flex flex-col gap-5 px-4">
                     <div className="flex flex-col gap-4 border-b border-zinc-800 py-5">
                         <div className="flex gap-5 hover:cursor-pointer hover:bg-zinc-700 hover:ring-8 hover:ring-zinc-700 rounded-sm"><Home/>Home</div>
