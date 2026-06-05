@@ -4,6 +4,7 @@ import { Header } from "../assets/Header"
 import { useAuth } from "@clerk/clerk-react"
 import { useEffect, useState } from "react"
 import axios from "axios"
+import { ThumbsDown, ThumbsUp, Undo2 } from "lucide-react"
 
 interface VideosType{
     id: string
@@ -16,18 +17,35 @@ interface VideosType{
     likes: number
 }
 
+interface UserType {
+    id: string
+    clerk_user_id: string
+    email: string
+    username: string
+    created_at: string
+    image_url: string
+}
+
 export function Watch(){
     const {id} = useParams()
     const [hideSide, setHideSide] = useState(true)
     const {getToken} = useAuth()
     const [videos, setVideos] = useState<VideosType[]>([])
+    const [users, setUsers] = useState<UserType[]>([])
     const selectedVideo = videos.find((v) => v.id === id)
+    const selectedUser = users.find((user) => user.id === selectedVideo?.user_id)
     useEffect(() => {
         const fetchExpressData = async() => {
             const token = getToken()
             const result = await axios.get("http://localhost:5000/global/upload", {headers: {Authorization: `Bearer ${token}`}})
             setVideos(result.data)
         }
+        const fetchUserData = async() => {
+            const token = getToken()
+            const result = await axios.get("http://localhost:5000/users", {headers: {Authorization: `Bearer ${token}`}})
+            setUsers(result.data)
+        }
+        fetchUserData()
         fetchExpressData()
     }, [])
     return(
@@ -45,11 +63,63 @@ export function Watch(){
                     />
                 </div>
                 <div className="mx-3 flex gap-5">
-                    <div className="flex flex-col gap-3 w-full h-full">
-                        <video src = {selectedVideo?.video_url} className="bg-black rounded-2xl w-8/12 h-120" controls autoPlay></video>
+                    <div className="flex flex-col gap-3 w-8/12 h-full">
+                        <video src = {selectedVideo?.video_url} className="bg-black rounded-2xl w-full h-120" controls autoPlay></video>
+                            <div className="flex flex-col gap-3">
+                            <span className="font-semibold text-2xl">"{selectedVideo?.title}"</span>
+                            <div className="flex justify-between w-9/12">
+                                <div className="flex gap-5">
+                                    <img src = {selectedUser?.image_url} className="w-12 h-12 rounded-full"></img>
+                                    <div className="flex flex-col">
+                                        <span className="font-semibold">{selectedUser?.username}</span>
+                                        <span className="text-sm text-gray-400">0 subscribers</span>
+                                    </div>
+                                    <button className="mx-5 font-semibold text-black p-2 w-30 h-12 rounded-full bg-white">Subscribe</button>
+                                </div>
+                                <div className="bg-white/20 flex rounded-2xl gap-3 p-1 w-fit justify-center">
+                                    <button className="flex gap-3 items-center px-2 hover:bg-white/15 rounded-lg hover:cursor-pointer"><ThumbsUp/>0</button>
+                                    <button className="flex gap-3 items-center px-2 hover:bg-white/15 rounded-lg hover:cursor-pointer"><ThumbsDown/>0</button>
+                                </div>
+                                <button className="flex gap-3 items-center w-40 bg-white/20 px-2 hover:bg-white/15 rounded-lg hover:cursor-pointer"><Undo2/>Share</button>
+                            </div>
+                        </div>
+                    </div>
+                    <div className="flex flex-col gap-3">
+                        <button className="text-black flex gap-3 items-center w-20 h-10 justify-center bg-white px-2 hover:bg-white/15 rounded-lg hover:cursor-pointer">All</button>
+                        <div className="flex flex-col h-fit w-full">
+                            {videos.map((video) => {
+                                const selectedUser = users.find((user) => user.id === video.user_id)
+                                return(
+                                <div className="flex gap-3">
+                                    <img src = {video.thumbnail} className="w-60 h-40 rounded-2xl"></img>
+                                    <div className="flex flex-col gap-2">
+                                        <span>{video.title}</span>
+                                        <div className="flex flex-col gap-2 text-sm text-gray-400">
+                                            <span>{selectedUser?.username}</span>
+                                            <span>0 views • {timeAgo(video.created_at)}</span>
+                                        </div>
+                                    </div>
+                                </div>
+                                )
+                            })}
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
     )
+    function timeAgo(date:string){
+        const differenceInSeconds = Math.floor((Date.now() - new Date(date).getTime()) / 1000)
+        const differenceInMinutes = Math.floor(differenceInSeconds/60) //if theres 7.2k seconds, 7.2k / 60 = 120 minutes
+        const differenceInHours = Math.floor(differenceInMinutes / 60)
+        const differenceInDays = Math.floor(differenceInHours / 24)
+        const differenceInMonths = Math.floor(differenceInDays/30)
+        const differenceInYears = Math.floor(differenceInMonths / 12)
+        if(differenceInSeconds < 60) return `${differenceInSeconds} seconds ago`
+        if(differenceInMinutes < 60) return `${differenceInMinutes} minutes ago`
+        if(differenceInHours < 24) return `${differenceInHours} hours ago`
+        if(differenceInDays < 30) return `${differenceInDays} days ago`
+        if(differenceInMonths < 12) return `${differenceInMonths} months ago`
+        return `${differenceInYears} years ago`
+    }
 }
