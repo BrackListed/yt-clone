@@ -91,11 +91,13 @@ export function Main(){
                     const uploader = users.find((user) => user.id === video.user_id)
                     return(
                     <div className="flex flex-col">
-                        <img src = {video.thumbnail} className="w-90 h-60 rounded-2xl object-cover" alt = "thumbnail"></img>
+                        <img src = {video.thumbnail} className="w-90 aspect-video rounded-2xl object-cover" alt = "thumbnail"></img>
                         <div className="flex gap-3 my-5">
                             <img src = {uploader?.image_url} alt = "profile picture" className="w-10 h-10 rounded-full"></img>
-                            <div className="flex flex-col gap-3">
+                            <div className="flex flex-col">
                                 {video.title}
+                                <span className="text-sm text-gray-500">{uploader?.username}</span>
+                                <span className="text-sm text-gray-500">0 Views • {timeAgo(video.created_at)}</span>
                             </div>
                         </div>
                     </div>)
@@ -104,4 +106,19 @@ export function Main(){
             </div>
         </div>
     )
+
+    function timeAgo(date:string){
+        const differenceInSeconds = Math.floor((Date.now() - new Date(date).getTime()) / 1000)
+        const differenceInMinutes = Math.floor(differenceInSeconds/60) //if theres 7.2k seconds, 7.2k / 60 = 120 minutes
+        const differenceInHours = Math.floor(differenceInMinutes / 60)
+        const differenceInDays = Math.floor(differenceInHours / 24)
+        const differenceInMonths = Math.floor(differenceInDays/30)
+        const differenceInYears = Math.floor(differenceInMonths / 12)
+        if(differenceInSeconds < 60) return `${differenceInSeconds} seconds ago`
+        if(differenceInMinutes < 60) return `${differenceInMinutes} minutes ago`
+        if(differenceInHours < 24) return `${differenceInHours} hours ago`
+        if(differenceInDays < 30) return `${differenceInDays} days ago`
+        if(differenceInMonths < 12) return `${differenceInMonths} months ago`
+        return `${differenceInYears} years ago`
+    }
 }
