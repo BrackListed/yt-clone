@@ -79,7 +79,11 @@ export function Channel(){
                     <div className="w-full border-b border-white/10">
                         <span className="mt-10 text-zinc-50 flex flex-col pb-3 w-fit border-b-3 border-b-zinc-50">Videos</span>
                     </div>
-                    Hey
+                    <div className="flex gap-10 flex-wrap">
+                        {videos.map((video) => (<div className="flex flex-col mt-5">
+                            <img className="w-100 h-60 rounded-2xl overflow-hidden" src = {video.thumbnail}></img>
+                        </div>))}
+                    </div>
                 </div>
             </div>
         </div>
