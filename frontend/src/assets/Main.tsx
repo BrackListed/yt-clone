@@ -52,7 +52,7 @@ export function Main({hideSide, setHideSide}: MainProps){
         fetchExpressData()
     }, [])
     return(
-        <div className="flex-1 w-full h-full py-1">
+        <div className="flex-1 w-full h-full py-1 overflow-x-hidden">
             <Header
             hideSide = {hideSide}
             setHideSide = {setHideSide}
@@ -62,7 +62,7 @@ export function Main({hideSide, setHideSide}: MainProps){
                 <div className="my-5 flex flex-wrap gap-8 w-full h-full">
                     {videos.map((video) => {
                     const uploader = users.find((user) => user.id === video.user_id)
-                    return(<div className="flex w-90 flex-col hover:cursor-pointer">
+                    return(<div className="flex w-90 overflow-x-hidden flex-col hover:cursor-pointer">
                         <div className="w-90 h-52 rounded-2xl overflow-hidden">
                             <Link to = {`/watch/${video.id}`}><img src = {video.thumbnail} className="w-full h-full object-cover" alt = "thumbnail"></img></Link>
                         </div>

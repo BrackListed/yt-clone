@@ -92,6 +92,14 @@ app.get("/subscriptions/channel", async(req, res) => {
   res.json(result.rows)
 })
 
+app.get("/subscriptions/user", async(req, res) => {
+  const {userId} = getAuth(req)
+  console.log(userId)
+  const id = await pool.query("SELECT id from USERS where clerk_user_id = $1", [userId])
+  const result = await pool.query("SELECT users.* FROM subscriptions JOIN users ON users.id = subscriptions.channel_id WHERE subscriptions.user_id = $1", [id.rows[0].id])
+  res.json(result.rows)
+})
+
 
 app.post('/clerk/webhooks', express.raw({ type: 'application/json' }), async (req, res) => {
   try {

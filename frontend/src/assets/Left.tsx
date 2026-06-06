@@ -1,6 +1,8 @@
+import { useAuth } from "@clerk/clerk-react";
 import { SiYoutube, SiYoutubegaming, SiYoutubekids, SiYoutubemusic, SiYoutubeshorts } from "@icons-pack/react-simple-icons";
+import axios from "axios";
 import { ChevronDown, ChevronRight, ChevronUp, Clapperboard, Clock, Download, Flag, History, Home, ListVideo, Music, Newspaper, Shirt, SquarePlay, TextAlignJustify, ThumbsUp, Trophy, UserSquare } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 
 
@@ -10,8 +12,27 @@ interface LeftProps{
     setHideSide: (value: boolean) => void
 }
 
+interface UserType {
+    id: string
+    clerk_user_id: string
+    email: string
+    username: string
+    created_at: string
+    image_url: string
+}
+
 export function Left({hideSide, setHideSide}: LeftProps){
     const [moreExplore, setMoreExplore] = useState(false)
+    const {getToken} = useAuth()
+    const [subscriptions, setSubscriptions] = useState<UserType[]>([])
+    useEffect(() => {
+        const fetchExpressData = async() => {
+            const token = await getToken()
+            const result = await axios.get("http://localhost:5000/subscriptions/user", {headers: {Authorization: `Bearer ${token}`}})
+            setSubscriptions(result.data)
+        }
+        fetchExpressData()
+    }, [])
     return(
         <div className={`fixed h-screen overflow-y-auto flex flex-col z-50 ${hideSide ? "w-fit" : "w-2/12 bg-zinc-900"}`}>
             <div className="h-1/12 flex items-center px-2 py-1 gap-5"><div className="hover:bg-zinc-600 p-2 rounded-full hover:cursor-pointer" onClick={() => {if(hideSide === false){setHideSide(true)} else{setHideSide(false)}}}>{hideSide === false && <TextAlignJustify/>}</div>{hideSide === false && <img className="w-34 h-auto" src = "/icon.png" alt = "youtube-icon"></img>}</div>
@@ -22,13 +43,9 @@ export function Left({hideSide, setHideSide}: LeftProps){
                     </div>
                     <div className="flex flex-col gap-3 border-b border-zinc-800 pb-5">
                         <div className="flex gap-2 hover:cursor-pointer hover:bg-zinc-700 hover:ring-8 hover:ring-zinc-700 rounded-sm">Subscriptions <ChevronRight/> </div>
-                        <div className="flex gap-2 hover:cursor-pointer hover:bg-zinc-700 hover:ring-8 hover:ring-zinc-700 rounded-sm"><img className="rounded-full w-6 h-6" src = "/esquie.jpg" alt = "esquie"></img> <span>BrackListed</span></div>
-                        <div className="flex gap-2 hover:cursor-pointer hover:bg-zinc-700 hover:ring-8 hover:ring-zinc-700 rounded-sm"><img className="rounded-full w-6 h-6" src = "/esquie.jpg" alt = "esquie"></img> <span>BrackListed</span></div>
-                        <div className="flex gap-2 hover:cursor-pointer hover:bg-zinc-700 hover:ring-8 hover:ring-zinc-700 rounded-sm"><img className="rounded-full w-6 h-6" src = "/esquie.jpg" alt = "esquie"></img> <span>BrackListed</span></div>
-                        <div className="flex gap-2 hover:cursor-pointer hover:bg-zinc-700 hover:ring-8 hover:ring-zinc-700 rounded-sm"><img className="rounded-full w-6 h-6" src = "/esquie.jpg" alt = "esquie"></img> <span>BrackListed</span></div>
-                        <div className="flex gap-2 hover:cursor-pointer hover:bg-zinc-700 hover:ring-8 hover:ring-zinc-700 rounded-sm"><img className="rounded-full w-6 h-6" src = "/esquie.jpg" alt = "esquie"></img> <span>BrackListed</span></div>
-                        <div className="flex gap-2 hover:cursor-pointer hover:bg-zinc-700 hover:ring-8 hover:ring-zinc-700 rounded-sm"><img className="rounded-full w-6 h-6" src = "/esquie.jpg" alt = "esquie"></img> <span>BrackListed</span></div>
-                        <div className="flex gap-2 hover:cursor-pointer hover:bg-zinc-700 hover:ring-8 hover:ring-zinc-700 rounded-sm"><img className="rounded-full w-6 h-6" src = "/esquie.jpg" alt = "esquie"></img> <span>BrackListed</span></div>
+                        {subscriptions.map((subscription) => (
+                            <div className="flex gap-2 hover:cursor-pointer hover:bg-zinc-700 hover:ring-8 hover:ring-zinc-700 rounded-sm"><img className="rounded-full w-6 h-6" src = {subscription.image_url} alt = {`Image icon of subscription ${subscription.username}`}></img> <span>{subscription.username}</span></div>
+                        ))}
                         <div className="flex gap-4 hover:cursor-pointer hover:bg-zinc-700 hover:ring-8 hover:ring-zinc-700 rounded-sm"><ChevronDown/>Show More</div>
                     </div>
                     <div className="flex flex-col gap-3 border-b border-zinc-800 pb-5">
