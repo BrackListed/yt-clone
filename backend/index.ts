@@ -69,8 +69,20 @@ app.get("/upload", async(req, res) => {
   res.json(result.rows)
 })
 
+app.get("/upload/channel/:username", async(req, res) => {
+  const id = await pool.query("SELECT id FROM users WHERE username = $1", [req.params.username])
+  const result = await pool.query("SELECT * FROM uploads WHERE user_id = $1", [id.rows[0].id])
+  res.json(result.rows)
+})
+
 app.get("/users", async(req, res) => {
   const result = await pool.query("SELECT * FROM users")
+  res.json(result.rows)
+})
+
+app.get("/users/channel/:username", async(req, res) => {
+  const id = await pool.query("SELECT id FROM users WHERE username = $1", [req.params.username])
+  const result = await pool.query("SELECT * FROM users WHERE id = $1", [id.rows[0].id])
   res.json(result.rows)
 })
 
