@@ -1,6 +1,6 @@
 
 import { useEffect, useState } from "react"
-import { useParams } from "react-router-dom"
+import { Link, useParams } from "react-router-dom"
 import { Left } from "../assets/Left"
 import { Header } from "../assets/Header"
 import { useAuth } from "@clerk/clerk-react"
@@ -79,13 +79,33 @@ export function Channel(){
                     <div className="w-full border-b border-white/10">
                         <span className="mt-10 text-zinc-50 flex flex-col pb-3 w-fit border-b-3 border-b-zinc-50">Videos</span>
                     </div>
-                    <div className="flex gap-10 flex-wrap">
-                        {videos.map((video) => (<div className="flex flex-col mt-5">
+                    <div className="flex gap-10 flex-wrap mt-5">
+                        {videos.map((video) => (<Link to = {`/watch/${video.id}`}><div className="flex flex-col">
                             <img className="w-100 h-60 rounded-2xl overflow-hidden" src = {video.thumbnail}></img>
-                        </div>))}
+                            <span className="font-semibold">{video.title}</span>
+                            <div className="flex gap-3 text-gray-400">
+                                <span>0 views</span>
+                                <span>•</span>
+                                <span>{calculateDate(video.created_at)}</span>
+                            </div>
+                        </div></Link>))}
                     </div>
                 </div>
             </div>
         </div>
     )
+    function calculateDate(date: string){
+        const differenceInSeconds = Math.floor((Date.now() - new Date(date).getTime()) / 1000)
+        const differenceInMinutes = Math.floor(differenceInSeconds/60) //if theres 7.2k seconds, 7.2k / 60 = 120 minutes
+        const differenceInHours = Math.floor(differenceInMinutes / 60)
+        const differenceInDays = Math.floor(differenceInHours / 24)
+        const differenceInMonths = Math.floor(differenceInDays/30)
+        const differenceInYears = Math.floor(differenceInMonths / 12)
+        if(differenceInSeconds < 60) return `${differenceInSeconds} seconds ago`
+        if(differenceInMinutes < 60) return `${differenceInMinutes} minutes ago`
+        if(differenceInHours < 24) return `${differenceInHours} hours ago`
+        if(differenceInDays < 30) return `${differenceInDays} days ago`
+        if(differenceInMonths < 12) return `${differenceInMonths} months ago`
+        return `${differenceInYears} years ago`
+    }
 }
