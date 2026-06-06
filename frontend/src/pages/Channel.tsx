@@ -52,12 +52,10 @@ export function Channel(){
             const token = await getToken()
             const response = await axios.get("http://localhost:5000/subscriptions/channel", {headers: {Authorization: `Bearer ${token}`}})
             setSubscriptionData(response.data)
-            console.log("Subscription data has arrived!")
         }
         fetchVideoData()
         fetchUserData()
         fetchSubscriptionData()
-        console.log(subscriptionData)
     }, [])
     return(
         <div className="flex">

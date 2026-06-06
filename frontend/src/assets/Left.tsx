@@ -1,6 +1,7 @@
 import { SiYoutube, SiYoutubegaming, SiYoutubekids, SiYoutubemusic, SiYoutubeshorts } from "@icons-pack/react-simple-icons";
 import { ChevronDown, ChevronRight, ChevronUp, Clapperboard, Clock, Download, Flag, History, Home, ListVideo, Music, Newspaper, Shirt, SquarePlay, TextAlignJustify, ThumbsUp, Trophy, UserSquare } from "lucide-react";
 import { useState } from "react";
+import { Link } from "react-router-dom";
 
 
 
@@ -16,7 +17,7 @@ export function Left({hideSide, setHideSide}: LeftProps){
             <div className="h-1/12 flex items-center px-2 py-1 gap-5"><div className="hover:bg-zinc-600 p-2 rounded-full hover:cursor-pointer" onClick={() => {if(hideSide === false){setHideSide(true)} else{setHideSide(false)}}}>{hideSide === false && <TextAlignJustify/>}</div>{hideSide === false && <img className="w-34 h-auto" src = "/icon.png" alt = "youtube-icon"></img>}</div>
             {hideSide === false &&<div className="flex flex-col gap-5 px-4">
                     <div className="flex flex-col gap-4 border-b border-zinc-800 py-5">
-                        <div className="flex gap-5 hover:cursor-pointer hover:bg-zinc-700 hover:ring-8 hover:ring-zinc-700 rounded-sm"><Home/>Home</div>
+                        <Link to = "/"><div className="flex gap-5 hover:cursor-pointer hover:bg-zinc-700 hover:ring-8 hover:ring-zinc-700 rounded-sm"><Home/>Home</div></Link>
                         <div className="flex gap-5 hover:cursor-pointer hover:bg-zinc-700 hover:ring-8 hover:ring-zinc-700 rounded-sm"><SiYoutubeshorts/>Shorts</div> 
                     </div>
                     <div className="flex flex-col gap-3 border-b border-zinc-800 pb-5">
