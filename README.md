@@ -6,3 +6,5 @@ A youtube clone website that imitates the core features of the actual youtube we
 ![Studio Videos Preview](./frontend/public/studiovideospreview.png)
 ## 📷Video Page
 ![Videos Preview](./frontend/public/videopreview.png)
+## 📷Dashboard Page
+![DashboardPreview](./frontend/public/studiodashboardpreview.png)

@@ -80,11 +80,18 @@ app.get("/users", async(req, res) => {
   res.json(result.rows)
 })
 
-app.get("/users/channel/:username", async(req, res) => {
-  const id = await pool.query("SELECT id FROM users WHERE username = $1", [req.params.username])
-  const result = await pool.query("SELECT * FROM users WHERE id = $1", [id.rows[0].id])
+app.post("/subscribe/:userId", async(req, res) => {
+  const id = await pool.query("SELECT id FROM users WHERE clerk_user_id = $1", [req.params.userId])
+  await pool.query("INSERT INTO subscriptions(user_id, channel_id) VALUES($1, $2)", [id.rows[0].id, req.body.channelId])
+})
+
+app.get("/subscriptions/channel", async(req, res) => {
+  const {userId} = getAuth(req)
+  const id = await pool.query("SELECT id from USERS WHERE clerk_user_id = $1", [userId])
+  const result = await pool.query("SELECT users.* FROM subscriptions JOIN users ON users.id = subscriptions.user_id WHERE subscriptions.channel_id = $1", [id.rows[0].id])
   res.json(result.rows)
 })
+
 
 app.post('/clerk/webhooks', express.raw({ type: 'application/json' }), async (req, res) => {
   try {

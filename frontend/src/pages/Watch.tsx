@@ -28,6 +28,7 @@ interface UserType {
 
 export function Watch(){
     const {id} = useParams()
+    const {userId} = useAuth()
     const [hideSide, setHideSide] = useState(true)
     const {getToken} = useAuth()
     const [videos, setVideos] = useState<VideosType[]>([])
@@ -74,7 +75,7 @@ export function Watch(){
                                         <Link to = {`/@/${selectedUser?.username}`}><span className="font-semibold">{selectedUser?.username}</span></Link>
                                         <span className="text-sm text-gray-400">0 subscribers</span>
                                     </div>
-                                    <button className="mx-5 font-semibold text-black p-2 w-30 h-12 rounded-full bg-white">Subscribe</button>
+                                    <button onClick={() => handleSubscription(userId, selectedUser!.id)} className="mx-5 font-semibold text-black p-2 w-30 h-12 rounded-full bg-white">Subscribe</button>
                                 </div>
                                 <div className="bg-white/20 flex rounded-2xl gap-3 p-1 w-fit justify-center">
                                     <button className="flex gap-3 items-center px-2 hover:bg-white/15 rounded-lg hover:cursor-pointer"><ThumbsUp/>0</button>
@@ -108,6 +109,11 @@ export function Watch(){
             </div>
         </div>
     )
+
+    function handleSubscription(userId: string | null | undefined, channelId: string){
+        axios.post(`http://localhost:5000/subscribe/${userId}`, {channelId: channelId})
+    }
+
     function timeAgo(date:string){
         const differenceInSeconds = Math.floor((Date.now() - new Date(date).getTime()) / 1000)
         const differenceInMinutes = Math.floor(differenceInSeconds/60) //if theres 7.2k seconds, 7.2k / 60 = 120 minutes

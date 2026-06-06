@@ -23,41 +23,81 @@ interface VideosType{
     likes: number
 }
 
+interface UserType {
+    id: string
+    clerk_user_id: string
+    email: string
+    username: string
+    created_at: string
+    image_url: string
+}
+
+
+
 
 
 export function CreateMain({showDashboard, setShowDashboard, showVideos, setShowVideos, showAnalytics, setShowAnalytics}: CreateMainProps){
     const [videos, setVideos] = useState<VideosType[]>([])
     const {getToken} = useAuth()
+    const [subscriptionData, setSubscriptionData] = useState<UserType[]>([])
     useEffect(() => {
         const fetchExpressData = async() => {
             const token = await getToken()
             const response = await axios.get("http://localhost:5000/upload", {headers: {Authorization: `Bearer ${token}`}})
             setVideos(response.data)
-            console.log(response.data)
+        }
+        const fetchSubscriptionData = async() => {
+            const token = await getToken()
+            const response = await axios.get("http://localhost:5000/subscriptions/channel", {headers: {Authorization: `Bearer ${token}`}})
+            setSubscriptionData(response.data)
+            console.log("Subscription data has arrived!")
         }
         fetchExpressData()
+        fetchSubscriptionData()
+        console.log(subscriptionData)
     }, [])
     return(
         <div className="flex-1 mx-10 pt-10">
-            {showDashboard &&<div className="flex flex-col">
+            {showDashboard &&<div className="flex flex-col gap-5">
                 <h1 className="text-3xl font-bold">Channel Dashboard</h1>
-                <div className="w-full my-5 max-w-sm bg-[#282828] border border-white/10 rounded-2xl p-6 text-[#f1f1f1] flex flex-col gap-6 font-sans">
-                    <h1 className="font-semibold text-2xl">Channel Analytics</h1>
-                    <div className="flex flex-col gap-2 border-b border-white/10 pb-5">
-                        <span>Current subscribers</span>
-                        <span className="text-3xl">0</span>
-                    </div>
-                    <div className="flex flex-col gap-3 border-b border-white/10 pb-5">
-                        <span>Summary</span>
-                        <span className="text-sm text-gray-500">Last 28 days</span>
-                        <div className="flex justify-between w-full">
-                            <span>Views: </span>
-                            <span>0</span>
+                <div className="flex gap-5">
+                    <div className="w-full my-5 max-w-sm bg-[#282828] border border-white/10 rounded-2xl p-6 text-[#f1f1f1] flex flex-col gap-6 font-sans">
+                        <h1 className="font-semibold text-2xl">Channel Analytics</h1>
+                        <div className="flex flex-col gap-2 border-b border-white/10 pb-5">
+                            <span>Current subscribers</span>
+                            <span className="text-3xl">{subscriptionData.length}</span>
+                        </div>
+                        <div className="flex flex-col gap-3 border-b border-white/10 pb-5">
+                            <span>Summary</span>
+                            <span className="text-sm text-gray-500">Last 28 days</span>
+                            <div className="flex justify-between w-full">
+                                <span>Views: </span>
+                                <span>0</span>
+                            </div>
+                        </div>
+                        <div className="flex flex-col gap-3">
+                            <span>Top Content</span>
+                            <span className="text-sm text-gray-500">Last 48 hours · Views</span>
+                            <button onClick={() => {setShowDashboard(false); setShowAnalytics(true); setShowVideos(false)}} className="my-5 p-3 bg-neutral-700 rounded-full hover:cursor-pointer hover:brightness-90">Go to channel analytics</button>
                         </div>
                     </div>
-                    <div className="flex flex-col gap-3">
-                        <span>Top Content</span>
-                        <span className="text-sm text-gray-500">Last 48 hours · Views</span>
+                    <div className="w-full my-5 max-w-sm bg-[#282828] border border-white/10 rounded-2xl p-6 text-[#f1f1f1] flex flex-col gap-6 font-sans">
+                        <h1 className="font-semibold text-2xl">Channel Analytics</h1>
+                        <div className="flex flex-col gap-2 border-b border-white/10 pb-5">
+                            <span>List of Subscribers</span>
+                            {subscriptionData.length <= 0 &&<span className="text-3xl">No Subscribers</span>}
+                            {subscriptionData.length > 0 && <div>
+                                {subscriptionData.map((subscriber) => (
+                                    <div className="flex gap-3">
+                                        <img src = {subscriber.image_url} alt = {`Image of Subscriber ${subscriber.username}`} className="w-10 h-10 rounded-full"></img>
+                                        <div className="flex flex-col gpa-2">
+                                            <span>{subscriber.username}</span>
+                                            <span className="text-sm text-gray-400">Account created at: {new Date(subscriber.created_at).toLocaleDateString()}</span>
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>}
+                        </div>
                         <button onClick={() => {setShowDashboard(false); setShowAnalytics(true); setShowVideos(false)}} className="my-5 p-3 bg-neutral-700 rounded-full hover:cursor-pointer hover:brightness-90">Go to channel analytics</button>
                     </div>
                 </div>

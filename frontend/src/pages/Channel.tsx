@@ -27,13 +27,15 @@ interface UserType {
 }
 
 export function Channel(){
+    const {userId} = useAuth()
     const [hideSide, setHideSide] = useState(true)
     const [globalVideos, setGlobalVideos] = useState<VideosType[]>([])
     const {username} = useParams()
     const [globalUsers, setGlobalUsers] = useState<UserType[]>()
     const user = globalUsers?.find((user) => user.username === username)
-    const userId = user?.id
-    const videos = globalVideos.filter((videos) => videos.user_id === userId )
+    const channelUserId = user?.id
+    const videos = globalVideos.filter((videos) => videos.user_id === channelUserId )
+    const [subscriptionData, setSubscriptionData] = useState<UserType[]>([])
     const {getToken} = useAuth()
     useEffect(() => {
         const fetchVideoData = async() => {
@@ -46,8 +48,16 @@ export function Channel(){
             const result = await axios.get("http://localhost:5000/users", {headers: {Authorization: `Bearer ${token}`}})
             setGlobalUsers(result.data)
         }
+        const fetchSubscriptionData = async() => {
+            const token = await getToken()
+            const response = await axios.get("http://localhost:5000/subscriptions/channel", {headers: {Authorization: `Bearer ${token}`}})
+            setSubscriptionData(response.data)
+            console.log("Subscription data has arrived!")
+        }
         fetchVideoData()
         fetchUserData()
+        fetchSubscriptionData()
+        console.log(subscriptionData)
     }, [])
     return(
         <div className="flex">
@@ -69,11 +79,12 @@ export function Channel(){
                             <div className="flex gap-1">
                                 <span className="text-zinc-50 font-semibold">@{user?.username}</span>
                                 <span className="text-gray-400">•</span>
-                                <span className="text-gray-400">0 Subscribers</span>
+                                <span className="text-gray-400">{subscriptionData.length} subscribers</span>
                                 <span className="text-gray-400">•</span>
                                 <span className="text-gray-400">{videos.length} videos</span>
                             </div>
                             <div className="text-gray-400 w-fit h-fit">Description!</div>
+                            <button onClick={() => handleSubscription(userId, user!.id)} className="w-25 p-2 h-10 font-semibold text-black rounded-full bg-white hover:bg-white/90 hover:cursor-pointer">Subscribe</button>
                         </div>
                     </div>
                     <div className="w-full border-b border-white/10">
@@ -94,6 +105,10 @@ export function Channel(){
             </div>
         </div>
     )
+
+    function handleSubscription(userId: string | null | undefined, channelId: string){
+        axios.post(`http://localhost:5000/subscribe/${userId}`, {channelId: channelId})
+    }
     function calculateDate(date: string){
         const differenceInSeconds = Math.floor((Date.now() - new Date(date).getTime()) / 1000)
         const differenceInMinutes = Math.floor(differenceInSeconds/60) //if theres 7.2k seconds, 7.2k / 60 = 120 minutes

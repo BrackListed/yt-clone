@@ -23,6 +23,12 @@ export const uploads = pgTable("uploads", {
     created_at: timestamp("created_at", {withTimezone: true}).defaultNow().notNull()
 })
 
+export const subscriptions = pgTable("subscriptions", {
+    id: integer().primaryKey().generatedAlwaysAsIdentity({increment: 1, startWith: 1}),
+    user_id: uuid("user_id").references(() => users.id, {onDelete: "cascade"}),
+    channel_id: uuid("channel_id").references(() => users.id, {onDelete: "cascade"})
+})
+
 export const userUploadRelations = relations(users, ({many}) => ({
     uploads: many(uploads)
 }))
