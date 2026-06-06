@@ -69,9 +69,9 @@ export function Watch(){
                             <span className="font-semibold text-2xl">"{selectedVideo?.title}"</span>
                             <div className="flex justify-between w-9/12">
                                 <div className="flex gap-5">
-                                    <img src = {selectedUser?.image_url} className="w-12 h-12 rounded-full"></img>
+                                    <Link to = {`/@/${selectedUser?.username}`}><img src = {selectedUser?.image_url} className="w-12 h-12 rounded-full"></img></Link>
                                     <div className="flex flex-col">
-                                        <span className="font-semibold">{selectedUser?.username}</span>
+                                        <Link to = {`/@/${selectedUser?.username}`}><span className="font-semibold">{selectedUser?.username}</span></Link>
                                         <span className="text-sm text-gray-400">0 subscribers</span>
                                     </div>
                                     <button className="mx-5 font-semibold text-black p-2 w-30 h-12 rounded-full bg-white">Subscribe</button>

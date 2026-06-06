@@ -60,7 +60,7 @@ export function Channel(){
                 hideSide = {hideSide}
                 setHideSide={setHideSide}
                 />
-                <div className={`flex-1 flex flex-col ml-20 p-10 h-screen ${hideSide ? "": "pl-[16.67%]"}`}>
+                <div className={`flex-1 flex flex-col p-10 h-screen ml-5 ${hideSide ? "": "pl-[16.67%]"}`}>
                     <img src="/bannerexample.png" className="h-60 w-10/12 rounded-lg object-cover object-center bg-zinc-800" alt="Channel Banner"></img>
                     <div className="mt-10 w-full gap-5 flex ">
                         <img className="rounded-full w-40 h-40" src = {user?.image_url}></img>
@@ -81,7 +81,7 @@ export function Channel(){
                     </div>
                     <div className="flex gap-10 flex-wrap mt-5">
                         {videos.map((video) => (<Link to = {`/watch/${video.id}`}><div className="flex flex-col">
-                            <img className="w-100 h-60 rounded-2xl overflow-hidden" src = {video.thumbnail}></img>
+                            <img className="w-95 h-60 rounded-2xl overflow-hidden" src = {video.thumbnail}></img>
                             <span className="font-semibold">{video.title}</span>
                             <div className="flex gap-3 text-gray-400">
                                 <span>0 views</span>
