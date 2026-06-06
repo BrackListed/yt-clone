@@ -1,6 +1,6 @@
 import { useAuth } from "@clerk/clerk-react";
 import { useEffect, useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import axios from "axios"
 import { Header } from "./Header";
 
@@ -33,6 +33,7 @@ export function Main({hideSide, setHideSide}: MainProps){
     const [videos, setVideos] = useState<VideosType[]>([])
     const [users, setUsers] = useState<UserType[]>([])
     const {getToken} = useAuth()
+    const navigate = useNavigate()
     useEffect(() => {
         const fetchExpressData = async() => {
             const token = getToken()
@@ -61,20 +62,19 @@ export function Main({hideSide, setHideSide}: MainProps){
                 <div className="my-5 flex gap-8 w-full h-full">
                     {videos.map((video) => {
                     const uploader = users.find((user) => user.id === video.user_id)
-                    return(
-                    <Link to = {`/watch/${video.id}`}><div className="flex w-90 flex-col hover:cursor-pointer">
+                    return(<div className="flex w-90 flex-col hover:cursor-pointer">
                         <div className="w-90 h-52 rounded-2xl overflow-hidden">
-                            <img src = {video.thumbnail} className="w-full h-full object-cover" alt = "thumbnail"></img>
+                            <Link to = {`/watch/${video.id}`}><img src = {video.thumbnail} className="w-full h-full object-cover" alt = "thumbnail"></img></Link>
                         </div>
                         <div className="flex gap-3 my-5">
-                            <img src = {uploader?.image_url} alt = "profile picture" className="w-10 h-10 rounded-full"></img>
+                            <img onClick={() => navigate(`/@/${uploader?.username}`)} src = {uploader?.image_url} alt = "profile picture" className="w-10 h-10 rounded-full"></img>
                             <div className="flex flex-col">
-                                {video.title}
-                                <span className="text-sm text-gray-500">{uploader?.username}</span>
+                                <Link to = {`/watch/${video.id}`}>{video.title}</Link>
+                                <span onClick={() => navigate(`/@/${uploader?.username}`)} className="text-sm text-gray-500 hover:text-white transition-colors">{uploader?.username}</span>
                                 <span className="text-sm text-gray-500">0 Views • {timeAgo(video.created_at)}</span>
                             </div>
                         </div>
-                    </div></Link>)
+                    </div>)
                     })}
                 </div>
             </div>
