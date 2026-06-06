@@ -5,7 +5,6 @@ import { useAuth } from "@clerk/clerk-react"
 import { useEffect, useState } from "react"
 import axios from "axios"
 import { ThumbsDown, ThumbsUp, Undo2 } from "lucide-react"
-import VideoPlayer from "../components/VideoPlayer"
 
 interface VideosType{
     id: string
@@ -66,7 +65,7 @@ export function Watch(){
                 </div>
                 <div className="mx-3 flex gap-5">
                     <div className="flex flex-col gap-3 w-8/12 h-full">
-                        <VideoPlayer src = {selectedVideo?.video_url ?? ""} />
+                        <video src = {selectedVideo?.video_url} className="bg-black rounded-2xl w-full h-120" controls autoPlay></video>
                             <div className="flex flex-col gap-3">
                             <span className="font-semibold text-2xl">"{selectedVideo?.title}"</span>
                             <div className="flex justify-between w-9/12">
