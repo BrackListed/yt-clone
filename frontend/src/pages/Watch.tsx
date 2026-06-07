@@ -4,7 +4,7 @@ import { Header } from "../assets/Header"
 import { useAuth } from "@clerk/clerk-react"
 import { useEffect, useState } from "react"
 import axios from "axios"
-import { ThumbsDown, ThumbsUp, Undo2 } from "lucide-react"
+import { ChevronDown, ThumbsDown, ThumbsUp, Undo2 } from "lucide-react"
 
 interface VideosType{
     id: string
@@ -36,6 +36,7 @@ export function Watch(){
     const selectedVideo = videos.find((v) => v.id === id)
     const selectedUser = users.find((user) => user.id === selectedVideo?.user_id)
     const [subscriptionData, setSubscriptionData] = useState<UserType[]>([])
+    const [alreadySubscribed, setAlreadySubscribed] = useState(false)
     useEffect(() => {
         const fetchExpressData = async() => {
             const token = await getToken()
@@ -49,16 +50,21 @@ export function Watch(){
         }
         const fetchSubscriptionData = async() => {
             if(!isLoaded) return 
-            console.log("subscription data fetching")
             const token = await getToken()
             const result = await axios.get("http://localhost:5000/subscriptions/channel", {headers: {Authorization: `Bearer ${token}`}})
             setSubscriptionData(result.data)
-            console.log("token: " + token)
+        }
+        const fetchSubscriptionStatus = async() => {
+            if(!selectedUser) return 
+            const token = await getToken()
+            const response = await axios.get(`http://localhost:5000/subscribe/status/${selectedUser.id}`, {headers: {Authorization: `Bearer ${token}`}})
+            setAlreadySubscribed(response.data)
         }
         fetchUserData()
         fetchExpressData()
         fetchSubscriptionData()
-    }, [isLoaded])
+        fetchSubscriptionStatus()
+    }, [selectedUser])
     return(
         <div className="flex">
             {hideSide === false &&<div className="fixed left-[16.67%] inset-y-0 right-0 bg-black/50 z-40"></div>}
@@ -85,7 +91,8 @@ export function Watch(){
                                         <Link to = {`/@/${selectedUser?.username}`}><span className="font-semibold">{selectedUser?.username}</span></Link>
                                         <span className="text-sm text-gray-400">{subscriptionData.length} subscribers</span>
                                     </div>
-                                    <button onClick={() => handleSubscription(userId, selectedUser!.id)} className="mx-5 font-semibold text-black p-2 w-30 h-12 rounded-full bg-white">Subscribe</button>
+                                    {alreadySubscribed === false && <button onClick={() => handleSubscription(userId, selectedUser!.id)} className="mx-5 font-semibold hover:cursor-pointer hover:brightness-90 text-black p-2 w-30 h-12 rounded-full bg-white">Subscribe</button>}
+                                    {alreadySubscribed && <button onClick={() => handleSubscription(userId, selectedUser!.id)} className="mx-5 flex gap-3 font-semibold text-white items-center py-2 px-3 w-35 h-12 rounded-full bg-neutral-700 hover:brightness-90 hover:cursor-pointer">Subscribed <ChevronDown/></button>}
                                 </div>
                                 <div className="bg-white/20 flex rounded-2xl gap-3 p-1 w-fit justify-center">
                                     <button className="flex gap-3 items-center px-2 hover:bg-white/15 rounded-lg hover:cursor-pointer"><ThumbsUp/>0</button>
