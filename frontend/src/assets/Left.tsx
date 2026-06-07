@@ -44,7 +44,7 @@ export function Left({hideSide, setHideSide}: LeftProps){
                     <div className="flex flex-col gap-3 border-b border-zinc-800 pb-5">
                         <div className="flex gap-2 hover:cursor-pointer hover:bg-zinc-700 hover:ring-8 hover:ring-zinc-700 rounded-sm">Subscriptions <ChevronRight/> </div>
                         {subscriptions.map((subscription) => (
-                            <div className="flex gap-2 hover:cursor-pointer hover:bg-zinc-700 hover:ring-8 hover:ring-zinc-700 rounded-sm"><img className="rounded-full w-6 h-6" src = {subscription.image_url} alt = {`Image icon of subscription ${subscription.username}`}></img> <span>{subscription.username}</span></div>
+                            <Link to = {`/@/${subscription.username}`}><div className="flex gap-2 hover:cursor-pointer hover:bg-zinc-700 hover:ring-8 hover:ring-zinc-700 rounded-sm"><img className="rounded-full w-6 h-6" src = {subscription.image_url} alt = {`Image icon of subscription ${subscription.username}`}></img> <span>{subscription.username}</span></div></Link>
                         ))}
                         <div className="flex gap-4 hover:cursor-pointer hover:bg-zinc-700 hover:ring-8 hover:ring-zinc-700 rounded-sm"><ChevronDown/>Show More</div>
                     </div>
