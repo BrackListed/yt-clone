@@ -30,25 +30,35 @@ export function Watch(){
     const {id} = useParams()
     const {userId} = useAuth()
     const [hideSide, setHideSide] = useState(true)
-    const {getToken} = useAuth()
+    const {getToken, isLoaded} = useAuth()
     const [videos, setVideos] = useState<VideosType[]>([])
     const [users, setUsers] = useState<UserType[]>([])
     const selectedVideo = videos.find((v) => v.id === id)
     const selectedUser = users.find((user) => user.id === selectedVideo?.user_id)
+    const [subscriptionData, setSubscriptionData] = useState<UserType[]>([])
     useEffect(() => {
         const fetchExpressData = async() => {
-            const token = getToken()
+            const token = await getToken()
             const result = await axios.get("http://localhost:5000/global/upload", {headers: {Authorization: `Bearer ${token}`}})
             setVideos(result.data)
         }
         const fetchUserData = async() => {
-            const token = getToken()
+            const token = await getToken()
             const result = await axios.get("http://localhost:5000/users", {headers: {Authorization: `Bearer ${token}`}})
             setUsers(result.data)
         }
+        const fetchSubscriptionData = async() => {
+            if(!isLoaded) return 
+            console.log("subscription data fetching")
+            const token = await getToken()
+            const result = await axios.get("http://localhost:5000/subscriptions/channel", {headers: {Authorization: `Bearer ${token}`}})
+            setSubscriptionData(result.data)
+            console.log("token: " + token)
+        }
         fetchUserData()
         fetchExpressData()
-    }, [])
+        fetchSubscriptionData()
+    }, [isLoaded])
     return(
         <div className="flex">
             {hideSide === false &&<div className="fixed left-[16.67%] inset-y-0 right-0 bg-black/50 z-40"></div>}
@@ -73,7 +83,7 @@ export function Watch(){
                                     <Link to = {`/@/${selectedUser?.username}`}><img src = {selectedUser?.image_url} className="w-12 h-12 rounded-full"></img></Link>
                                     <div className="flex flex-col">
                                         <Link to = {`/@/${selectedUser?.username}`}><span className="font-semibold">{selectedUser?.username}</span></Link>
-                                        <span className="text-sm text-gray-400">0 subscribers</span>
+                                        <span className="text-sm text-gray-400">{subscriptionData.length} subscribers</span>
                                     </div>
                                     <button onClick={() => handleSubscription(userId, selectedUser!.id)} className="mx-5 font-semibold text-black p-2 w-30 h-12 rounded-full bg-white">Subscribe</button>
                                 </div>
@@ -91,7 +101,7 @@ export function Watch(){
                             {videos.map((video) => {
                                 const selectedUser = users.find((user) => user.id === video.user_id)
                                 return(
-                                <Link to = {`/watch/${video.id}`}><div className="flex gap-3">
+                                <Link to = {`/watch/${video.id}`}><div className="flex gap-3 my-2">
                                     <img src = {video.thumbnail} className="w-60 h-40 rounded-2xl"></img>
                                     <div className="flex flex-col gap-2">
                                         <span>{video.title}</span>

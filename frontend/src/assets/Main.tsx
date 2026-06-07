@@ -36,7 +36,7 @@ export function Main({hideSide, setHideSide}: MainProps){
     const navigate = useNavigate()
     useEffect(() => {
         const fetchExpressData = async() => {
-            const token = getToken()
+            const token = await getToken()
             const result = await axios.get("http://localhost:5000/global/upload", {headers: {Authorization: `Bearer ${token}`}})
             setVideos(result.data)
         }
@@ -45,7 +45,7 @@ export function Main({hideSide, setHideSide}: MainProps){
 
     useEffect(() => {
         const fetchExpressData = async() => {
-            const token = getToken()
+            const token = await getToken()
             const result = await axios.get("http://localhost:5000/users", {headers: {Authorization: `Bearer ${token}`}})
             setUsers(result.data)
         }

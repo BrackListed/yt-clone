@@ -47,8 +47,7 @@ app.post("/upload", upload.single('video'), async(req, res) => {
     const minutes = Math.floor(result.duration / 60)
     const seconds = Math.floor(result.duration % 60)
     const duration = `${minutes}:${seconds.toString().padStart(2, '0')}`
-    const thumbnail = result.secure_url.replace('/video/upload', '/video/upload/so_0/').replace('.mp4', '.jpg')
-    console.log(JSON.stringify(result)) 
+    const thumbnail = result.secure_url.replace('/video/upload', '/video/upload/so_0/').replace('.mp4', '.jpg') 
     await pool.query("INSERT INTO uploads(user_id, video_url, title, duration, thumbnail) VALUES($1, $2, $3, $4, $5)", [id.rows[0].id, result.secure_url, result.display_name, duration, thumbnail])
     fs.unlinkSync(req.file!.path)
   } catch(err){
@@ -82,7 +81,12 @@ app.get("/users", async(req, res) => {
 
 app.post("/subscribe/:userId", async(req, res) => {
   const id = await pool.query("SELECT id FROM users WHERE clerk_user_id = $1", [req.params.userId])
-  await pool.query("INSERT INTO subscriptions(user_id, channel_id) VALUES($1, $2)", [id.rows[0].id, req.body.channelId])
+  const subscriptions = await pool.query("SELECT users.* FROM subscriptions JOIN users ON users.id = subscriptions.channel_id WHERE subscriptions.user_id = $1", [id.rows[0].id])
+  const alreadySubscribed = subscriptions.rows.some((subscription) => (subscription.id === req.body.channelId))
+  if(!alreadySubscribed){
+    await pool.query("INSERT INTO subscriptions(user_id, channel_id) VALUES($1, $2)", [id.rows[0].id, req.body.channelId])
+  }
+  res.json({message: "Subscribed"})
 })
 
 app.get("/subscriptions/channel", async(req, res) => {
@@ -93,11 +97,14 @@ app.get("/subscriptions/channel", async(req, res) => {
 })
 
 app.get("/subscriptions/user", async(req, res) => {
-  const {userId} = getAuth(req)
-  console.log(userId)
-  const id = await pool.query("SELECT id from USERS where clerk_user_id = $1", [userId])
-  const result = await pool.query("SELECT users.* FROM subscriptions JOIN users ON users.id = subscriptions.channel_id WHERE subscriptions.user_id = $1", [id.rows[0].id])
-  res.json(result.rows)
+  try{
+    const {userId} = getAuth(req)
+    const id = await pool.query("SELECT id from USERS where clerk_user_id = $1", [userId])
+    const result = await pool.query("SELECT users.* FROM subscriptions JOIN users ON users.id = subscriptions.channel_id WHERE subscriptions.user_id = $1", [id.rows[0].id])
+    res.json(result.rows)
+  } catch(err){
+    res.status(500).json({error: err})
+  }
 })
 
 
@@ -120,6 +127,7 @@ app.post('/clerk/webhooks', express.raw({ type: 'application/json' }), async (re
 })
 
 
-
-
 app.listen(5000, () => console.log('Listening on http://localhost:5000'));
+process.on('uncaughtException', (err) => {
+  console.error('Uncaught exception:', err)
+})

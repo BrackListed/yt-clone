@@ -38,9 +38,10 @@ interface UserType {
 
 export function CreateMain({showDashboard, setShowDashboard, showVideos, setShowVideos, showAnalytics, setShowAnalytics}: CreateMainProps){
     const [videos, setVideos] = useState<VideosType[]>([])
-    const {getToken} = useAuth()
+    const {getToken, isSignedIn, isLoaded} = useAuth()
     const [subscriptionData, setSubscriptionData] = useState<UserType[]>([])
     useEffect(() => {
+        if(!isLoaded || !isSignedIn) return 
         const fetchExpressData = async() => {
             const token = await getToken()
             const response = await axios.get("http://localhost:5000/upload", {headers: {Authorization: `Bearer ${token}`}})
@@ -55,7 +56,7 @@ export function CreateMain({showDashboard, setShowDashboard, showVideos, setShow
         fetchExpressData()
         fetchSubscriptionData()
         console.log(subscriptionData)
-    }, [])
+    }, [isLoaded, isSignedIn])
     return(
         <div className="flex-1 mx-10 pt-10">
             {showDashboard &&<div className="flex flex-col gap-5">
