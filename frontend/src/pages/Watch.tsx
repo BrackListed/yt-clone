@@ -4,7 +4,7 @@ import { Header } from "../assets/Header"
 import { useAuth } from "@clerk/clerk-react"
 import { useEffect, useState } from "react"
 import axios from "axios"
-import { ChevronDown, ThumbsDown, ThumbsUp, Undo2 } from "lucide-react"
+import { ChevronDown, ThumbsDown, ThumbsUp, Undo2, UserMinus } from "lucide-react"
 
 interface VideosType{
     id: string
@@ -37,6 +37,7 @@ export function Watch(){
     const selectedUser = users.find((user) => user.id === selectedVideo?.user_id)
     const [subscriptionData, setSubscriptionData] = useState<UserType[]>([])
     const [alreadySubscribed, setAlreadySubscribed] = useState(false)
+    const [subscriptionPopup, setSubscriptionPopup] = useState(false)
     useEffect(() => {
         const fetchExpressData = async() => {
             const token = await getToken()
@@ -92,11 +93,16 @@ export function Watch(){
                                         <span className="text-sm text-gray-400">{subscriptionData.length} subscribers</span>
                                     </div>
                                     {alreadySubscribed === false && <button onClick={() => handleSubscription(userId, selectedUser!.id)} className="mx-5 font-semibold hover:cursor-pointer hover:brightness-90 text-black p-2 w-30 h-12 rounded-full bg-white">Subscribe</button>}
-                                    {alreadySubscribed && <button onClick={() => handleSubscription(userId, selectedUser!.id)} className="mx-5 flex gap-3 font-semibold text-white items-center py-2 px-3 w-35 h-12 rounded-full bg-neutral-700 hover:brightness-90 hover:cursor-pointer">Subscribed <ChevronDown/></button>}
+                                    <div className="relative">
+                                        {alreadySubscribed && <button onClick={() => setSubscriptionPopup(!subscriptionPopup)} className="mx-5 flex gap-3 font-semibold text-white items-center py-2 px-3 w-35 h-12 rounded-full bg-neutral-700 hover:brightness-90 hover:cursor-pointer">Subscribed <ChevronDown/></button>}
+                                        {subscriptionPopup && <div className="absolute bg-neutral-800 rounded-xl shadow-lg py-2 w-44 z-50 mt-2">
+                                            <button onClick={() => handleUnsubscribe(userId, selectedUser!.id)} className="w-full flex items-center gap-3 px-4 py-3 hover:bg-neutral-600 hover:cursor-pointer transition-colors text-left text-sm"><UserMinus size={16}/>Unsubscribe</button>
+                                        </div>}
+                                    </div>
                                 </div>
                                 <div className="bg-white/20 flex rounded-2xl gap-3 p-1 w-fit justify-center">
-                                    <button className="flex gap-3 items-center px-2 hover:bg-white/15 rounded-lg hover:cursor-pointer"><ThumbsUp/>0</button>
-                                    <button className="flex gap-3 items-center px-2 hover:bg-white/15 rounded-lg hover:cursor-pointer"><ThumbsDown/>0</button>
+                                    <button onClick={() => handleLikes(userId, selectedVideo?.id)} className="flex gap-3 items-center px-2 hover:bg-white/15 rounded-lg hover:cursor-pointer"><ThumbsUp/>{selectedVideo?.likes}</button>
+                                    <button onClick={() => handleDislikes(userId, selectedVideo?.id)} className="flex gap-3 items-center px-2 hover:bg-white/15 rounded-lg hover:cursor-pointer"><ThumbsDown/>0</button>
                                 </div>
                                 <button className="flex gap-3 items-center w-40 bg-white/20 px-2 hover:bg-white/15 rounded-lg hover:cursor-pointer"><Undo2/>Share</button>
                             </div>
@@ -129,6 +135,19 @@ export function Watch(){
 
     function handleSubscription(userId: string | null | undefined, channelId: string){
         axios.post(`http://localhost:5000/subscribe/${userId}`, {channelId: channelId})
+    }
+
+    function handleUnsubscribe(userId: string | null | undefined, channelId: string){
+        axios.post(`http://localhost:5000/unsubscribe/${userId}`, {channelId: channelId})
+        setSubscriptionPopup(false)
+    }
+
+    function handleLikes(userId: string | null | undefined, videoId: string | null | undefined){
+        axios.post(`http://localhost:5000/likes/${userId}`, {videoId: videoId})
+    }
+
+    function handleDislikes(userId: string | null | undefined, videoId: string | null | undefined){
+        axios.post(`http://localhost:5000/dislikes/${userId}`, {videoId: videoId})
     }
 
     function timeAgo(date:string){

@@ -121,6 +121,27 @@ app.get("/subscriptions/user", async(req, res) => {
 })
 
 
+app.post("/likes/:userId", async(req, res) => {
+  //if the video, matches the video_id in the user_id row, then it already exists
+  const id = await pool.query("SELECT id FROM users WHERE clerk_user_id = $1", [req.params.userId])
+  const likedVideos = await pool.query("SELECT uploads.*, liked_videos.video_id FROM liked_videos JOIN uploads ON uploads.id = liked_videos.video_id WHERE liked_videos.user_id = $1", [id.rows[0].id])
+  //selected all videos that are currently liked by the user
+  //if the video is already in liked videos, likes - 1
+  const videoStatus = likedVideos.rows.some((videos) => (videos.video_id === req.body.videoId)) //returns true if the current video is already liked by the user, else it returns false
+  if(videoStatus){
+    await pool.query("UPDATE uploads SET likes = likes - 1 WHERE id = $1", [req.body.videoId])
+    await pool.query("DELETE FROM liked_videos WHERE user_id = $1 AND video_id = $2", [id.rows[0].id, req.body.videoId])
+  } else{
+    await pool.query("UPDATE uploads SET likes = likes + 1 WHERE id = $1", [req.body.videoId])
+    await pool.query("INSERT INTO liked_videos(user_id, video_id) VALUES($1, $2)", [id.rows[0].id, req.body.videoId])
+  }
+})
+
+app.post("/dislikes/:userId", async(req, res) => {
+  await pool.query("UPDATE uploads SET dislikes = dislikes + 1 WHERE id = $1", [req.body.videoId])
+  await pool.query("INSERT INTO disliked_videos(user_id, video_id) VALUES($1, $2)", [req.params.userId, req.body.videoId])
+})
+
 app.post('/clerk/webhooks', express.raw({ type: 'application/json' }), async (req, res) => {
   try {
     const evt = await verifyWebhook(req)
