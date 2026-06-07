@@ -38,6 +38,7 @@ export function Watch(){
     const [subscriptionData, setSubscriptionData] = useState<UserType[]>([])
     const [alreadySubscribed, setAlreadySubscribed] = useState(false)
     const [subscriptionPopup, setSubscriptionPopup] = useState(false)
+    const [hasLikedVideo, setHasLikedVideo] = useState(false)
     useEffect(() => {
         const fetchExpressData = async() => {
             const token = await getToken()
@@ -61,10 +62,17 @@ export function Watch(){
             const response = await axios.get(`http://localhost:5000/subscribe/status/${selectedUser.id}`, {headers: {Authorization: `Bearer ${token}`}})
             setAlreadySubscribed(response.data)
         }
+        const fetchLikedStatus = async() => {
+            if(!selectedUser) return
+            const token = await getToken()
+            const response = await axios.get(`http://localhost:5000/likes/status/${userId}/${selectedVideo!.id}`, {headers: {Authorization: `Bearer ${token}`}})
+            setHasLikedVideo(response.data)
+        }
         fetchUserData()
         fetchExpressData()
         fetchSubscriptionData()
         fetchSubscriptionStatus()
+        fetchLikedStatus()
     }, [selectedUser])
     return(
         <div className="flex">
@@ -101,7 +109,7 @@ export function Watch(){
                                     </div>
                                 </div>
                                 <div className="bg-white/20 flex rounded-2xl gap-3 p-1 w-fit justify-center">
-                                    <button onClick={() => handleLikes(userId, selectedVideo?.id)} className="flex gap-3 items-center px-2 hover:bg-white/15 rounded-lg hover:cursor-pointer"><ThumbsUp/>{selectedVideo?.likes}</button>
+                                    <button onClick={() => handleLikes(userId, selectedVideo?.id)} className="flex gap-3 items-center px-2 hover:bg-white/15 rounded-lg hover:cursor-pointer"><ThumbsUp className={`${hasLikedVideo ? "text-white fill-white" : ""}`}/>{selectedVideo?.likes}</button>
                                     <button onClick={() => handleDislikes(userId, selectedVideo?.id)} className="flex gap-3 items-center px-2 hover:bg-white/15 rounded-lg hover:cursor-pointer"><ThumbsDown/>0</button>
                                 </div>
                                 <button className="flex gap-3 items-center w-40 bg-white/20 px-2 hover:bg-white/15 rounded-lg hover:cursor-pointer"><Undo2/>Share</button>

@@ -91,7 +91,7 @@ app.post("/subscribe/:userId", async(req, res) => {
 app.get("/subscribe/status/:channelId", async(req, res) => {
   const {userId} = getAuth(req)
   const id = await pool.query("SELECT id FROM users WHERE clerk_user_id = $1", [userId])
-  const subscriptions = await pool.query("SELECT users.* FROM subscriptions JOIN users ON users.id = subscriptions.channel_id WHERE subscriptions.user_id = $1", [id.rows[0].id])
+  const subscriptions = await pool.query("SELECT users.*, subscriptions.channel_id FROM subscriptions JOIN users ON users.id = subscriptions.channel_id WHERE subscriptions.user_id = $1", [id.rows[0].id])
   const alreadySubscribed = subscriptions.rows.some((subscription) => (subscription.id === req.params.channelId))
   res.json(alreadySubscribed)
 })
@@ -135,6 +135,13 @@ app.post("/likes/:userId", async(req, res) => {
     await pool.query("UPDATE uploads SET likes = likes + 1 WHERE id = $1", [req.body.videoId])
     await pool.query("INSERT INTO liked_videos(user_id, video_id) VALUES($1, $2)", [id.rows[0].id, req.body.videoId])
   }
+})
+
+app.get("/likes/status/:userId/:videoId", async(req, res) => {
+  const id = await pool.query("SELECT id FROM users WHERE clerk_user_id = $1", [req.params.userId])
+  const likedVideos = await pool.query("SELECT uploads.*, liked_videos.video_id FROM liked_videos JOIN uploads ON uploads.id = liked_videos.video_id WHERE liked_videos.user_id = $1", [id.rows[0].id])
+  const videoStatus = likedVideos.rows.some((videos) => (videos.video_id === req.params.videoId))
+  res.json(videoStatus)
 })
 
 app.post("/dislikes/:userId", async(req, res) => {
