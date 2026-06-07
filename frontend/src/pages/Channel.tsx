@@ -5,7 +5,7 @@ import { Left } from "../assets/Left"
 import { Header } from "../assets/Header"
 import { useAuth } from "@clerk/clerk-react"
 import axios from "axios"
-import { ChevronDown } from "lucide-react"
+import { ChevronDown, UserMinus } from "lucide-react"
 
 interface VideosType{
     id: string
@@ -39,6 +39,7 @@ export function Channel(){
     const [subscriptionData, setSubscriptionData] = useState<UserType[]>([])
     const {getToken} = useAuth()
     const [alreadySubscribed, setAlreadySubscribed]  = useState(false)
+    const [subscriptionPopup, setSubscriptionPopup] = useState(false)
     useEffect(() => {
         const fetchVideoData = async() => {
             const token = await getToken()
@@ -92,7 +93,12 @@ export function Channel(){
                             </div>
                             <div className="text-gray-400 w-fit h-fit">Description!</div>
                             {alreadySubscribed === false && <button onClick={() => handleSubscription(userId, user!.id)} className="w-25 p-2 h-10 font-semibold text-black rounded-full bg-white hover:bg-white/90 hover:cursor-pointer">Subscribe</button>}
-                            {alreadySubscribed && <button onClick={() => handleSubscription(userId, user!.id)} className="disabled w-35 gap-3 items-center py-2 px-4 h-10 font-semibold flex text-white rounded-full bg-neutral-700 hover:brightness-90 hover:cursor-pointer">Subscribed <ChevronDown/></button>}
+                            <div className="relative">
+                                {alreadySubscribed && <button onClick={() => setSubscriptionPopup(!subscriptionPopup)} className="disabled w-35 gap-3 items-center py-2 px-4 h-10 font-semibold flex text-white rounded-full bg-neutral-700 hover:brightness-90 hover:cursor-pointer">Subscribed <ChevronDown/></button>}
+                                {subscriptionPopup && <div className="absolute bg-neutral-800 rounded-xl shadow-lg py-2 w-44 z-50 mt-2">
+                                    <button onClick={() => handleUnsubscribe(userId, user!.id)} className="w-full flex items-center gap-3 px-4 py-3 hover:bg-neutral-600 hover:cursor-pointer transition-colors text-left text-sm"><UserMinus size={16}/>Unsubscribe</button>
+                                </div>}
+                            </div>
                         </div>
                     </div>
                     <div className="w-full border-b border-white/10">
@@ -116,7 +122,11 @@ export function Channel(){
 
     function handleSubscription(userId: string | null | undefined, channelId: string){
         axios.post(`http://localhost:5000/subscribe/${userId}`, {channelId: channelId})
+    }
 
+    function handleUnsubscribe(userId: string | null | undefined, channelId: string){
+        axios.post(`http://localhost:5000/unsubscribe/${userId}`, {channelId: channelId})
+        setSubscriptionPopup(false)
     }
     function calculateDate(date: string){
         const differenceInSeconds = Math.floor((Date.now() - new Date(date).getTime()) / 1000)
