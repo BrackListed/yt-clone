@@ -5,6 +5,7 @@ import { Left } from "../assets/Left"
 import { Header } from "../assets/Header"
 import { useAuth } from "@clerk/clerk-react"
 import axios from "axios"
+import { ChevronDown } from "lucide-react"
 
 interface VideosType{
     id: string
@@ -37,6 +38,7 @@ export function Channel(){
     const videos = globalVideos.filter((videos) => videos.user_id === channelUserId )
     const [subscriptionData, setSubscriptionData] = useState<UserType[]>([])
     const {getToken} = useAuth()
+    const [alreadySubscribed, setAlreadySubscribed]  = useState(false)
     useEffect(() => {
         const fetchVideoData = async() => {
             const token = await getToken()
@@ -53,10 +55,17 @@ export function Channel(){
             const response = await axios.get("http://localhost:5000/subscriptions/channel", {headers: {Authorization: `Bearer ${token}`}})
             setSubscriptionData(response.data)
         }
+        const fetchSubscriptionStatus = async() => {
+            if(!user) return 
+            const token = await getToken()
+            const response = await axios.get(`http://localhost:5000/subscribe/status/${user!.id}`, {headers: {Authorization: `Bearer ${token}`}})
+            setAlreadySubscribed(response.data)
+        }
         fetchVideoData()
         fetchUserData()
         fetchSubscriptionData()
-    }, [])
+        fetchSubscriptionStatus()
+    }, [user])
     return(
         <div className="flex">
             <Left
@@ -82,7 +91,8 @@ export function Channel(){
                                 <span className="text-gray-400">{videos.length} videos</span>
                             </div>
                             <div className="text-gray-400 w-fit h-fit">Description!</div>
-                            <button onClick={() => handleSubscription(userId, user!.id)} className="w-25 p-2 h-10 font-semibold text-black rounded-full bg-white hover:bg-white/90 hover:cursor-pointer">Subscribe</button>
+                            {alreadySubscribed === false && <button onClick={() => handleSubscription(userId, user!.id)} className="w-25 p-2 h-10 font-semibold text-black rounded-full bg-white hover:bg-white/90 hover:cursor-pointer">Subscribe</button>}
+                            {alreadySubscribed && <button onClick={() => handleSubscription(userId, user!.id)} className="disabled w-35 gap-3 items-center py-2 px-4 h-10 font-semibold flex text-white rounded-full bg-neutral-700 hover:brightness-90 hover:cursor-pointer">Subscribed <ChevronDown/></button>}
                         </div>
                     </div>
                     <div className="w-full border-b border-white/10">
@@ -106,6 +116,7 @@ export function Channel(){
 
     function handleSubscription(userId: string | null | undefined, channelId: string){
         axios.post(`http://localhost:5000/subscribe/${userId}`, {channelId: channelId})
+
     }
     function calculateDate(date: string){
         const differenceInSeconds = Math.floor((Date.now() - new Date(date).getTime()) / 1000)

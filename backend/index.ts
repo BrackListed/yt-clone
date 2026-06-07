@@ -85,8 +85,18 @@ app.post("/subscribe/:userId", async(req, res) => {
   const alreadySubscribed = subscriptions.rows.some((subscription) => (subscription.id === req.body.channelId))
   if(!alreadySubscribed){
     await pool.query("INSERT INTO subscriptions(user_id, channel_id) VALUES($1, $2)", [id.rows[0].id, req.body.channelId])
+    res.json(false)
+  } else{
+    res.json(true)
   }
-  res.json({message: "Subscribed"})
+})
+
+app.get("/subscribe/status/:channelId", async(req, res) => {
+  const {userId} = getAuth(req)
+  const id = await pool.query("SELECT id FROM users WHERE clerk_user_id = $1", [userId])
+  const subscriptions = await pool.query("SELECT users.* FROM subscriptions JOIN users ON users.id = subscriptions.channel_id WHERE subscriptions.user_id = $1", [id.rows[0].id])
+  const alreadySubscribed = subscriptions.rows.some((subscription) => (subscription.id === req.params.channelId))
+  res.json(alreadySubscribed)
 })
 
 app.get("/subscriptions/channel", async(req, res) => {
