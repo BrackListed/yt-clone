@@ -145,8 +145,23 @@ app.get("/likes/status/:userId/:videoId", async(req, res) => {
 })
 
 app.post("/dislikes/:userId", async(req, res) => {
-  await pool.query("UPDATE uploads SET dislikes = dislikes + 1 WHERE id = $1", [req.body.videoId])
-  await pool.query("INSERT INTO disliked_videos(user_id, video_id) VALUES($1, $2)", [req.params.userId, req.body.videoId])
+  const id = await pool.query("SELECT id FROM users WHERE clerk_user_id = $1", [req.params.userId])
+  const dislikedVideos = await pool.query("SELECT uploads.*, disliked_videos.video_id FROM disliked_videos JOIN uploads ON uploads.id = disliked_videos.video_id WHERE disliked_videos.user_id = $1", [id.rows[0].id])
+  const videoStatus = dislikedVideos.rows.some((videos) => (videos.id === req.body.videoId))
+  if(videoStatus){
+    await pool.query("UPDATE uploads SET dislikes = dislikes - 1 WHERE id = $1", [req.body.videoId])
+    await pool.query("DELETE FROM disliked_videos WHERE user_id = $1 AND video_id = $2", [id.rows[0].id, req.body.videoId])
+  } else{
+    await pool.query("UPDATE uploads SET dislikes = dislikes + 1 WHERE id = $1", [req.body.videoId])
+    await pool.query("INSERT INTO disliked_videos(user_id, video_id) VALUES($1, $2)", [id.rows[0].id, req.body.videoId])
+  }
+})
+
+app.get("/dislikes/status/:userId/:videoId", async(req, res) => {
+  const id = await pool.query("SELECT id FROM users WHERE clerk_user_id = $1", [req.params.userId])
+  const dislikedVideos = await pool.query("SELECT uploads.*, disliked_videos.video_id FROM disliked_videos JOIN uploads ON uploads.id = disliked_videos.video_id WHERE disliked_videos.user_id = $1", [id.rows[0].id])
+  const videoStatus = dislikedVideos.rows.some((videos) => (videos.id === req.params.videoId))
+  res.json(videoStatus)
 })
 
 app.post('/clerk/webhooks', express.raw({ type: 'application/json' }), async (req, res) => {

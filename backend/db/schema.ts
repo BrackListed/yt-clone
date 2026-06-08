@@ -35,7 +35,7 @@ export const liked_videos = pgTable("liked_videos", {
     video_id: uuid("video_id").references(() => uploads.id, {onDelete: "cascade"})
 })
 
-export const disliked_videosd = pgTable("disliked_videos", {
+export const disliked_videos = pgTable("disliked_videos", {
     id: integer().primaryKey().generatedAlwaysAsIdentity({increment: 1, startWith: 1}),
     user_id: uuid("user_id").references(() => users.id, {onDelete:"cascade"}),
     video_id: uuid("video_id").references(() => uploads.id, {onDelete:"cascade"})
