@@ -99,7 +99,7 @@ app.get("/subscribe/status/:channelId", async(req, res) => {
 app.get("/subscriptions/channel", async(req, res) => {
   const {userId} = getAuth(req)
   const id = await pool.query("SELECT id from USERS WHERE clerk_user_id = $1", [userId])
-  const result = await pool.query("SELECT users.* FROM subscriptions JOIN users ON users.id = subscriptions.user_id WHERE subscriptions.channel_id = $1", [id.rows[0].id])
+  const result = await pool.query("SELECT users.*, subscriptions.channel_id FROM subscriptions JOIN users ON users.id = subscriptions.user_id WHERE subscriptions.channel_id = $1", [id.rows[0].id])
   res.json(result.rows)
 })
 
@@ -127,11 +127,18 @@ app.post("/likes/:userId", async(req, res) => {
   const likedVideos = await pool.query("SELECT uploads.*, liked_videos.video_id FROM liked_videos JOIN uploads ON uploads.id = liked_videos.video_id WHERE liked_videos.user_id = $1", [id.rows[0].id])
   //selected all videos that are currently liked by the user
   //if the video is already in liked videos, likes - 1
+  const dislikedVideos = await pool.query("SELECT uploads.*, disliked_videos.video_id FROM disliked_videos JOIN uploads ON uploads.id = disliked_videos.video_id WHERE disliked_videos.user_id = $1", [id.rows[0].id])
   const videoStatus = likedVideos.rows.some((videos) => (videos.video_id === req.body.videoId)) //returns true if the current video is already liked by the user, else it returns false
-  if(videoStatus){
+  const dislikedStatus = dislikedVideos.rows.some((videos) => (videos.id === req.body.videoId))
+  if(videoStatus && dislikedStatus === false){
     await pool.query("UPDATE uploads SET likes = likes - 1 WHERE id = $1", [req.body.videoId])
     await pool.query("DELETE FROM liked_videos WHERE user_id = $1 AND video_id = $2", [id.rows[0].id, req.body.videoId])
-  } else{
+  } else if(videoStatus === false && dislikedStatus === false){
+    await pool.query("UPDATE uploads SET likes = likes + 1 WHERE id = $1", [req.body.videoId])
+    await pool.query("INSERT INTO liked_videos(user_id, video_id) VALUES($1, $2)", [id.rows[0].id, req.body.videoId])
+  } else if(videoStatus === false && dislikedStatus === true){
+    await pool.query("UPDATE uploads SET dislikes = dislikes - 1 WHERE id = $1", [req.body.videoId])
+    await pool.query("DELETE FROM disliked_videos WHERE user_id = $1 AND video_id = $2", [id.rows[0].id, req.body.videoId])
     await pool.query("UPDATE uploads SET likes = likes + 1 WHERE id = $1", [req.body.videoId])
     await pool.query("INSERT INTO liked_videos(user_id, video_id) VALUES($1, $2)", [id.rows[0].id, req.body.videoId])
   }
@@ -147,12 +154,19 @@ app.get("/likes/status/:userId/:videoId", async(req, res) => {
 app.post("/dislikes/:userId", async(req, res) => {
   const id = await pool.query("SELECT id FROM users WHERE clerk_user_id = $1", [req.params.userId])
   const dislikedVideos = await pool.query("SELECT uploads.*, disliked_videos.video_id FROM disliked_videos JOIN uploads ON uploads.id = disliked_videos.video_id WHERE disliked_videos.user_id = $1", [id.rows[0].id])
-  const videoStatus = dislikedVideos.rows.some((videos) => (videos.id === req.body.videoId))
-  if(videoStatus){
+  const likedVideos = await pool.query("SELECT uploads.*, liked_videos.video_id FROM liked_videos JOIN uploads ON uploads.id = liked_videos.video_id WHERE liked_videos.user_id = $1", [id.rows[0].id])
+  const likedStatus = likedVideos.rows.some((videos) => (videos.video_id === req.body.videoId))
+  const videoStatus = dislikedVideos.rows.some((videos) => (videos.video_id === req.body.videoId))
+  if(videoStatus && likedStatus === false){
     await pool.query("UPDATE uploads SET dislikes = dislikes - 1 WHERE id = $1", [req.body.videoId])
     await pool.query("DELETE FROM disliked_videos WHERE user_id = $1 AND video_id = $2", [id.rows[0].id, req.body.videoId])
-  } else{
+  } else if(videoStatus === false && likedStatus === false){
     await pool.query("UPDATE uploads SET dislikes = dislikes + 1 WHERE id = $1", [req.body.videoId])
+    await pool.query("INSERT INTO disliked_videos(user_id, video_id) VALUES($1, $2)", [id.rows[0].id, req.body.videoId])
+  } else if(videoStatus === false && likedStatus === true){
+    await pool.query("UPDATE uploads SET dislikes = dislikes + 1 WHERE id = $1", [req.body.videoId])
+    await pool.query("UPDATE uploads SET likes = likes - 1 WHERE id = $1", [req.body.videoId])
+    await pool.query("DELETE FROM liked_videos WHERE user_id = $1 AND video_id = $2", [id.rows[0].id, req.body.videoId])
     await pool.query("INSERT INTO disliked_videos(user_id, video_id) VALUES($1, $2)", [id.rows[0].id, req.body.videoId])
   }
 })
@@ -160,7 +174,7 @@ app.post("/dislikes/:userId", async(req, res) => {
 app.get("/dislikes/status/:userId/:videoId", async(req, res) => {
   const id = await pool.query("SELECT id FROM users WHERE clerk_user_id = $1", [req.params.userId])
   const dislikedVideos = await pool.query("SELECT uploads.*, disliked_videos.video_id FROM disliked_videos JOIN uploads ON uploads.id = disliked_videos.video_id WHERE disliked_videos.user_id = $1", [id.rows[0].id])
-  const videoStatus = dislikedVideos.rows.some((videos) => (videos.id === req.params.videoId))
+  const videoStatus = dislikedVideos.rows.some((videos) => (videos.video_id === req.params.videoId))
   res.json(videoStatus)
 })
 

@@ -83,6 +83,23 @@ export function Watch(){
         fetchLikedStatus()
         fetchDislikedStatus()
     }, [selectedUser])
+
+    useEffect(() => {
+        const fetchLikedStatus = async() => {
+            if(!selectedUser) return
+            const token = await getToken()
+            const response = await axios.get(`http://localhost:5000/likes/status/${userId}/${selectedVideo!.id}`, {headers: {Authorization: `Bearer ${token}`}})
+            setHasLikedVideo(response.data)
+        }
+        const fetchDislikedStatus = async() =>  {
+            if(!selectedUser) return 
+            const token = await getToken()
+            const response = await axios.get(`http://localhost:5000/dislikes/status/${userId}/${selectedVideo!.id}`, {headers: {Authorization: `Bearer ${token}`}})
+            setHasDislikedVideo(response.data)
+        }
+        fetchLikedStatus()
+        fetchDislikedStatus()
+    }, [selectedVideo?.likes, selectedVideo?.dislikes])
     return(
         <div className="flex">
             {hideSide === false &&<div className="fixed left-[16.67%] inset-y-0 right-0 bg-black/50 z-40"></div>}
