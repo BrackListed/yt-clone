@@ -35,6 +35,7 @@ export function Watch(){
     const [videos, setVideos] = useState<VideosType[]>([])
     const [users, setUsers] = useState<UserType[]>([])
     const selectedVideo = videos.find((v) => v.id === id)
+    const User = users.find((user) => user.clerk_user_id === userId)
     const selectedUser = users.find((user) => user.id === selectedVideo?.user_id)
     const [subscriptionData, setSubscriptionData] = useState<UserType[]>([])
     const [alreadySubscribed, setAlreadySubscribed] = useState(false)
@@ -139,6 +140,12 @@ export function Watch(){
                                     <button onClick={() => handleDislikes(userId, selectedVideo?.id)} className="flex gap-3 items-center px-2 hover:bg-white/15 rounded-lg hover:cursor-pointer"><ThumbsDown className={`${hasDislikedVideo ? "fill-white text-white" : "" }`}/>{selectedVideo?.dislikes}</button>
                                 </div>
                                 <button className="flex gap-3 items-center w-40 bg-white/20 px-2 hover:bg-white/15 rounded-lg hover:cursor-pointer"><Undo2/>Share</button>
+                            </div>
+                            <div className="mt-3 flex flex-col">
+                                <h1 className="font-semibold text-2xl">0 Comments</h1>
+                                <div className="flex gap-3 mt-2">
+                                    <img src = {User?.image_url} className="w-10 h-10"></img>
+                                </div>
                             </div>
                         </div>
                     </div>
