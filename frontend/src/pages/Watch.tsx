@@ -44,6 +44,7 @@ export function Watch(){
     const [hasDislikedVideo, setHasDislikedVideo] = useState(false)
     const [toggleCommentUI, setToggleCommentUI] = useState(false)
     const [commentValue, setCommentValue] = useState("")
+    const [comments, setComments] = useState([])
     useEffect(() => {
         const fetchExpressData = async() => {
             const token = await getToken()
@@ -79,12 +80,19 @@ export function Watch(){
             const response = await axios.get(`http://localhost:5000/dislikes/status/${userId}/${selectedVideo!.id}`, {headers: {Authorization: `Bearer ${token}`}})
             setHasDislikedVideo(response.data)
         }
+        const fetchComments = async() => {
+            if(!selectedUser) return 
+            const token = await getToken()
+            const response = await axios.get(`http://localhost:5000/comments/${selectedVideo?.id}`, {headers: {Authorization: `Bearer ${token}`}})
+            setComments(response.data)
+        }
         fetchUserData()
         fetchExpressData()
         fetchSubscriptionData()
         fetchSubscriptionStatus()
         fetchLikedStatus()
         fetchDislikedStatus()
+        fetchComments()
     }, [selectedUser])
 
     useEffect(() => {
@@ -155,7 +163,7 @@ export function Watch(){
                                         <input onChange={(e) => setCommentValue(e.target.value)} className="flex-1 border-b-2 border-white outline-none"></input> 
                                         <div className="flex gap-3 justify-end">
                                             <button onClick={() => setToggleCommentUI(false)} className="bg-none px-3 py-2 hover:bg-neutral-700 rounded-full hover:cursor-pointer font-semibold ">Cancel</button>
-                                            <button className={`${commentValue.length >= 1 ? "bg-blue-500 text-black font-semibold" : "bg-neutral-700 text-zinc-400/80"} px-3 py-2 rounded-full hover:cursor-pointer`}>Comment</button>     
+                                            <button onClick={() => handleComment(commentValue)} className={`${commentValue.length >= 1 ? "bg-blue-500 text-black font-semibold" : "bg-neutral-700 text-zinc-400/80"} px-3 py-2 rounded-full hover:cursor-pointer`}>Comment</button>     
                                         </div>   
                                     </div> 
                                 </div>}
@@ -202,6 +210,10 @@ export function Watch(){
 
     function handleDislikes(userId: string | null | undefined, videoId: string | null | undefined){
         axios.post(`http://localhost:5000/dislikes/${userId}`, {videoId: videoId})
+    }
+
+    function handleComment(comment: string){
+        axios.post(`http://localhost:5000/comments/${userId}/${selectedVideo?.id}`, {comment: comment})
     }
 
     function timeAgo(date:string){

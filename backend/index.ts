@@ -178,6 +178,16 @@ app.get("/dislikes/status/:userId/:videoId", async(req, res) => {
   res.json(videoStatus)
 })
 
+app.post("/comments/:userId/:videoId", async(req, res) => {
+  const id = await pool.query("SELECT id FROM users WHERE clerk_user_id = $1", [req.params.userId])
+  await pool.query("INSERT INTO comments(user_id, video_id) VALUES($1, $2)", [id.rows[0].id, req.params.videoId])
+})
+
+app.get("/comments/:videoId", async(req, res) => {
+  const result = await pool.query("SELECT comments.*, users.username, users.image_url FROM comments JOIN users ON users.id = comments.user_id WHERE comments.upload_id = $1", [req.params.videoId])
+  res.json(result)
+})
+
 app.post('/clerk/webhooks', express.raw({ type: 'application/json' }), async (req, res) => {
   try {
     const evt = await verifyWebhook(req)

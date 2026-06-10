@@ -29,6 +29,12 @@ export const subscriptions = pgTable("subscriptions", {
     channel_id: uuid("channel_id").references(() => users.id, {onDelete: "cascade"})
 })
 
+export const comments = pgTable("comments", {
+    id: integer().primaryKey().generatedAlwaysAsIdentity({increment: 1, startWith: 1}),
+    user_id: uuid("user_id").references(() => users.id, {onDelete: "cascade"}),
+    video_id: uuid("video_id").references(() => uploads.id, {onDelete: "cascade"})
+})
+
 export const liked_videos = pgTable("liked_videos", {
     id: integer().primaryKey().generatedAlwaysAsIdentity({increment: 1, startWith: 1}),
     user_id: uuid("user_id").references(() => users.id, {onDelete: "cascade"}),
@@ -48,5 +54,6 @@ export const userUploadRelations = relations(users, ({many}) => ({
 export const uploadUserRelations = relations(uploads, ({one}) => ({
     users: one(users, {fields: [uploads.user_id], references: [users.id] })
 }))
+
 
 
