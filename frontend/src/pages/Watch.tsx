@@ -42,6 +42,8 @@ export function Watch(){
     const [subscriptionPopup, setSubscriptionPopup] = useState(false)
     const [hasLikedVideo, setHasLikedVideo] = useState(false)
     const [hasDislikedVideo, setHasDislikedVideo] = useState(false)
+    const [toggleCommentUI, setToggleCommentUI] = useState(false)
+    const [commentValue, setCommentValue] = useState("")
     useEffect(() => {
         const fetchExpressData = async() => {
             const token = await getToken()
@@ -143,9 +145,20 @@ export function Watch(){
                             </div>
                             <div className="mt-3 flex flex-col">
                                 <h1 className="font-semibold text-2xl">0 Comments</h1>
-                                <div className="flex gap-3 mt-2">
-                                    <img src = {User?.image_url} className="w-10 h-10"></img>
-                                </div>
+                                {toggleCommentUI === false && <div className="flex gap-3 mt-2 items-center">
+                                    <img src = {User?.image_url} className="w-10 h-10 rounded-full"></img>
+                                    <input onClick={() => setToggleCommentUI(true)} className="flex-1 border-b-2 border-white/10 outline-none" placeholder="Add a comment..."></input>
+                                </div>}
+                                {toggleCommentUI && <div className="flex gap-3 mt-2 items-center">
+                                    <img src = {User?.image_url} className="w-15 h-15 rounded-full"></img>   
+                                    <div className="flex flex-col justify-center gap-2 w-full">
+                                        <input onChange={(e) => setCommentValue(e.target.value)} className="flex-1 border-b-2 border-white outline-none"></input> 
+                                        <div className="flex gap-3 justify-end">
+                                            <button onClick={() => setToggleCommentUI(false)} className="bg-none px-3 py-2 hover:bg-neutral-700 rounded-full hover:cursor-pointer font-semibold ">Cancel</button>
+                                            <button className={`${commentValue.length >= 1 ? "bg-blue-500 text-black font-semibold" : "bg-neutral-700 text-zinc-400/80"} px-3 py-2 rounded-full hover:cursor-pointer`}>Comment</button>     
+                                        </div>   
+                                    </div> 
+                                </div>}
                             </div>
                         </div>
                     </div>
