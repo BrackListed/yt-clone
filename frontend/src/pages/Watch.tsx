@@ -58,6 +58,7 @@ export function Watch(){
     const [commentPopup, setCommentPopup] = useState(false)
     const [commentTarget, setCommentTarget] = useState(0)
     const [editComment, setEditComment] = useState(false)
+    const [newCommentValue, setNewCommentValue] = useState("")
     useEffect(() => {
         const fetchExpressData = async() => {
             const token = await getToken()
@@ -197,10 +198,10 @@ export function Watch(){
                                         {editComment && <div className="flex gap-3 mt-2">
                                             <img src = {User?.image_url} className="w-15 h-15 rounded-full"></img>   
                                             <div className="flex flex-col justify-center gap-2 w-full">
-                                                <input onChange={(e) => setCommentValue(e.target.value)} className="flex-1 border-b-2 border-white outline-none"></input> 
+                                                <input defaultValue={commentValue} onChange={(e) => setNewCommentValue(e.target.value)} className="flex-1 border-b-2 border-white outline-none"></input> 
                                                 <div className="flex gap-3 justify-end mt-3">
                                                     <button onClick={() => setEditComment(false)} className="bg-none px-3 py-2 hover:bg-neutral-700 rounded-full hover:cursor-pointer font-semibold ">Cancel</button>
-                                                    <button onClick={() => handleComment(commentValue)} className={`${commentValue.length >= 1 ? "bg-blue-500 text-black font-semibold" : "bg-neutral-700 text-zinc-400/80"} px-3 py-2 rounded-full hover:cursor-pointer`}>Save</button>     
+                                                    <button onClick={() => handleUpdateComment(newCommentValue)} className={`${newCommentValue.length >= 1 ? "bg-blue-500 text-black font-semibold" : "bg-neutral-700 text-zinc-400/80"} px-3 py-2 rounded-full hover:cursor-pointer`}>Save</button>     
                                                 </div>
                                             </div> 
                                         </div>}
