@@ -198,10 +198,10 @@ export function Watch(){
                                         {editComment && <div className="flex gap-3 mt-2">
                                             <img src = {User?.image_url} className="w-15 h-15 rounded-full"></img>   
                                             <div className="flex flex-col justify-center gap-2 w-full">
-                                                <input defaultValue={commentValue} onChange={(e) => setNewCommentValue(e.target.value)} className="flex-1 border-b-2 border-white outline-none"></input> 
+                                                <input defaultValue={comment.content} onChange={(e) => setNewCommentValue(e.target.value)} className="flex-1 border-b-2 border-white outline-none"></input> 
                                                 <div className="flex gap-3 justify-end mt-3">
                                                     <button onClick={() => setEditComment(false)} className="bg-none px-3 py-2 hover:bg-neutral-700 rounded-full hover:cursor-pointer font-semibold ">Cancel</button>
-                                                    <button onClick={() => handleUpdateComment(newCommentValue)} className={`${newCommentValue.length >= 1 ? "bg-blue-500 text-black font-semibold" : "bg-neutral-700 text-zinc-400/80"} px-3 py-2 rounded-full hover:cursor-pointer`}>Save</button>     
+                                                    <button onClick={() => handleUpdateComment(newCommentValue, comment.id, comment.user_id, comment.video_id)} className={`${newCommentValue.length >= 1 ? "bg-blue-500 text-black font-semibold" : "bg-neutral-700 text-zinc-400/80"} px-3 py-2 rounded-full hover:cursor-pointer`}>Save</button>     
                                                 </div>
                                             </div> 
                                         </div>}
@@ -244,6 +244,7 @@ export function Watch(){
         axios.post(`http://localhost:5000/subscribe/${userId}`, {channelId: channelId})
     }
 
+
     function handleUnsubscribe(userId: string | null | undefined, channelId: string){
         axios.post(`http://localhost:5000/unsubscribe/${userId}`, {channelId: channelId})
         setSubscriptionPopup(false)
@@ -259,6 +260,10 @@ export function Watch(){
 
     function handleComment(comment: string){
         axios.post(`http://localhost:5000/comments/${userId}/${selectedVideo?.id}`, {comment: comment})
+    }
+
+    function handleUpdateComment(content: string, id: number, userId: string, videoId: string){
+        axios.put(`http://localhost:5000/comments/update/${id}/${userId}/${videoId}`, {content: content})
     }
 
     function deleteComment(id: number, userId: string, videoId: string){

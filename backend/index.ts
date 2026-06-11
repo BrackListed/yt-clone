@@ -181,15 +181,23 @@ app.get("/dislikes/status/:userId/:videoId", async(req, res) => {
 app.post("/comments/:userId/:videoId", async(req, res) => {
   const id = await pool.query("SELECT id FROM users WHERE clerk_user_id = $1", [req.params.userId])
   await pool.query("INSERT INTO comments(user_id, video_id, content) VALUES($1, $2, $3)", [id.rows[0].id, req.params.videoId, req.body.comment])
+  res.json({message: "New comment added"})
 })
 
 app.get("/comments/:videoId", async(req, res) => {
   const result = await pool.query("SELECT comments.*, users.username, users.image_url FROM comments JOIN users ON users.id = comments.user_id WHERE comments.video_id = $1", [req.params.videoId])
   res.json(result.rows)
+
 })
 
 app.post("/comments/delete/:commentId/:userId/:videoId", async(req, res) => {
   await pool.query("DELETE FROM comments WHERE id = $1 AND user_id = $2 AND video_id = $3", [req.params.commentId, req.params.userId, req.params.videoId])
+  res.json({message: "Comment deleted successfully"})
+})
+
+app.put("/comments/update/:id/:userId/:videoId", async(req, res) => {
+  await pool.query("UPDATE comments SET content = $1 WHERE id = $2 AND user_id = $3 AND video_id = $4", [req.body.content, req.params.id, req.params.userId, req.params.videoId])
+  res.json({message: "Comment updated successfully"})
 })
 
 app.post('/clerk/webhooks', express.raw({ type: 'application/json' }), async (req, res) => {
