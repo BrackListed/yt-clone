@@ -4,7 +4,7 @@ import { Header } from "../assets/Header"
 import { useAuth } from "@clerk/clerk-react"
 import { useEffect, useState } from "react"
 import axios from "axios"
-import { ChevronDown, ThumbsDown, ThumbsUp, Undo2, UserMinus } from "lucide-react"
+import { ChevronDown, EllipsisVertical, Pencil, ThumbsDown, ThumbsUp, Trash, Undo2, UserMinus } from "lucide-react"
 
 interface VideosType{
     id: string
@@ -27,6 +27,16 @@ interface UserType {
     image_url: string
 }
 
+interface commentType {
+    id: number
+    username: string
+    image_url: string
+    content: string
+    user_id: string
+    video_id: string
+}
+
+
 export function Watch(){
     const {id} = useParams()
     const {userId} = useAuth()
@@ -44,7 +54,9 @@ export function Watch(){
     const [hasDislikedVideo, setHasDislikedVideo] = useState(false)
     const [toggleCommentUI, setToggleCommentUI] = useState(false)
     const [commentValue, setCommentValue] = useState("")
-    const [comments, setComments] = useState([])
+    const [comments, setComments] = useState<commentType[]>([])
+    const [commentPopup, setCommentPopup] = useState(false)
+    const [commentTarget, setCommentTarget] = useState(0)
     useEffect(() => {
         const fetchExpressData = async() => {
             const token = await getToken()
@@ -151,22 +163,43 @@ export function Watch(){
                                 </div>
                                 <button className="flex gap-3 items-center w-40 bg-white/20 px-2 hover:bg-white/15 rounded-lg hover:cursor-pointer"><Undo2/>Share</button>
                             </div>
-                            <div className="mt-3 flex flex-col">
+                            <div className="mt-3 flex flex-col gap-3">
                                 <h1 className="font-semibold text-2xl">0 Comments</h1>
                                 {toggleCommentUI === false && <div className="flex gap-3 mt-2 items-center">
                                     <img src = {User?.image_url} className="w-10 h-10 rounded-full"></img>
                                     <input onClick={() => setToggleCommentUI(true)} className="flex-1 border-b-2 border-white/10 outline-none" placeholder="Add a comment..."></input>
                                 </div>}
-                                {toggleCommentUI && <div className="flex gap-3 mt-2 items-center">
+                                {toggleCommentUI && <div className="flex gap-3 mt-2">
                                     <img src = {User?.image_url} className="w-15 h-15 rounded-full"></img>   
                                     <div className="flex flex-col justify-center gap-2 w-full">
                                         <input onChange={(e) => setCommentValue(e.target.value)} className="flex-1 border-b-2 border-white outline-none"></input> 
-                                        <div className="flex gap-3 justify-end">
+                                        <div className="flex gap-3 justify-end mt-3">
                                             <button onClick={() => setToggleCommentUI(false)} className="bg-none px-3 py-2 hover:bg-neutral-700 rounded-full hover:cursor-pointer font-semibold ">Cancel</button>
                                             <button onClick={() => handleComment(commentValue)} className={`${commentValue.length >= 1 ? "bg-blue-500 text-black font-semibold" : "bg-neutral-700 text-zinc-400/80"} px-3 py-2 rounded-full hover:cursor-pointer`}>Comment</button>     
-                                        </div>   
+                                        </div>
                                     </div> 
                                 </div>}
+                                {comments.map((comment) => (<div className="flex gap-3">
+                                    <img className="w-10 h-10 rounded-full" src = {comment.image_url}></img>
+                                    <div className="flex flex-col w-full">
+                                        <div className="flex flex-1 justify-between">
+                                            <span>@{comment.username}</span>
+                                            <div className="relative">
+                                                <button onClick={() => {setCommentPopup(!commentPopup); setCommentTarget(comment.id)}} className="hover:cursor-pointer"><EllipsisVertical/></button>
+                                                {(commentPopup && commentTarget === comment.id) && <div className="absolute right-0 top-full bg-[#282828] rounded-xl p-2 shadow-xl z-50 flex flex-col gap-2">
+                                                <span className="flex gap-2 hover:bg-neutral-700 hover:cursor-pointer p-2 rounded-lg"><Pencil/>Edit</span>
+                                                <span onClick={() => deleteComment(comment.id, comment.user_id, comment.video_id)} className="flex gap-2 hover:bg-neutral-700 hover:cursor-pointer p-2 rounded-lg"><Trash/>Delete</span>    
+                                                </div>}
+                                            </div>
+                                        </div>
+                                        <span>{comment.content}</span>
+                                        <div className="flex gap-3">
+                                            <span className="flex items-center gap-2"><ThumbsUp className="w-4 h-4"/>0</span>
+                                            <span className="flex items-center gap-2"><ThumbsDown className="w-4 h-4"/>0</span>
+                                            <button className="font-semibold text-sm">Reply</button>
+                                        </div>
+                                    </div>
+                                </div>))}
                             </div>
                         </div>
                     </div>
@@ -214,6 +247,10 @@ export function Watch(){
 
     function handleComment(comment: string){
         axios.post(`http://localhost:5000/comments/${userId}/${selectedVideo?.id}`, {comment: comment})
+    }
+
+    function deleteComment(id: number, userId: string, videoId: string){
+        axios.post(`http://localhost:5000/comments/delete/${id}/${userId}/${videoId}`)
     }
 
     function timeAgo(date:string){

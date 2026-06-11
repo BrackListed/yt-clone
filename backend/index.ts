@@ -91,7 +91,7 @@ app.post("/subscribe/:userId", async(req, res) => {
 app.get("/subscribe/status/:channelId", async(req, res) => {
   const {userId} = getAuth(req)
   const id = await pool.query("SELECT id FROM users WHERE clerk_user_id = $1", [userId])
-  const subscriptions = await pool.query("SELECT users.*, subscriptions.channel_id FROM subscriptions JOIN users ON users.id = subscriptions.channel_id WHERE subscriptions.user_id = $1", [id.rows[0].id])
+  const subscriptions = await pool.query("SELECT users.*, subscriptions.channel_id, subscriptions.user_id FROM subscriptions JOIN users ON users.id = subscriptions.channel_id WHERE subscriptions.user_id = $1", [id.rows[0].id])
   const alreadySubscribed = subscriptions.rows.some((subscription) => (subscription.id === req.params.channelId))
   res.json(alreadySubscribed)
 })
@@ -99,7 +99,7 @@ app.get("/subscribe/status/:channelId", async(req, res) => {
 app.get("/subscriptions/channel", async(req, res) => {
   const {userId} = getAuth(req)
   const id = await pool.query("SELECT id from USERS WHERE clerk_user_id = $1", [userId])
-  const result = await pool.query("SELECT users.*, subscriptions.channel_id FROM subscriptions JOIN users ON users.id = subscriptions.user_id WHERE subscriptions.channel_id = $1", [id.rows[0].id])
+  const result = await pool.query("SELECT users.*, subscriptions.channel_id, subscriptions.user_id FROM subscriptions JOIN users ON users.id = subscriptions.user_id WHERE subscriptions.channel_id = $1", [id.rows[0].id])
   res.json(result.rows)
 })
 
@@ -180,12 +180,16 @@ app.get("/dislikes/status/:userId/:videoId", async(req, res) => {
 
 app.post("/comments/:userId/:videoId", async(req, res) => {
   const id = await pool.query("SELECT id FROM users WHERE clerk_user_id = $1", [req.params.userId])
-  await pool.query("INSERT INTO comments(user_id, video_id) VALUES($1, $2)", [id.rows[0].id, req.params.videoId])
+  await pool.query("INSERT INTO comments(user_id, video_id, content) VALUES($1, $2, $3)", [id.rows[0].id, req.params.videoId, req.body.comment])
 })
 
 app.get("/comments/:videoId", async(req, res) => {
-  const result = await pool.query("SELECT comments.*, users.username, users.image_url FROM comments JOIN users ON users.id = comments.user_id WHERE comments.upload_id = $1", [req.params.videoId])
-  res.json(result)
+  const result = await pool.query("SELECT comments.*, users.username, users.image_url FROM comments JOIN users ON users.id = comments.user_id WHERE comments.video_id = $1", [req.params.videoId])
+  res.json(result.rows)
+})
+
+app.post("/comments/delete/:commentId/:userId/:videoId", async(req, res) => {
+  await pool.query("DELETE FROM comments WHERE id = $1 AND user_id = $2 AND video_id = $3", [req.params.commentId, req.params.userId, req.params.videoId])
 })
 
 app.post('/clerk/webhooks', express.raw({ type: 'application/json' }), async (req, res) => {

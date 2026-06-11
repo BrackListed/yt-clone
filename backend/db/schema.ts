@@ -31,6 +31,7 @@ export const subscriptions = pgTable("subscriptions", {
 
 export const comments = pgTable("comments", {
     id: integer().primaryKey().generatedAlwaysAsIdentity({increment: 1, startWith: 1}),
+    content: text("content").notNull(),
     user_id: uuid("user_id").references(() => users.id, {onDelete: "cascade"}),
     video_id: uuid("video_id").references(() => uploads.id, {onDelete: "cascade"})
 })
