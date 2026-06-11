@@ -201,7 +201,7 @@ export function Watch(){
                                                 <input defaultValue={comment.content} onChange={(e) => setNewCommentValue(e.target.value)} className="flex-1 border-b-2 border-white outline-none"></input> 
                                                 <div className="flex gap-3 justify-end mt-3">
                                                     <button onClick={() => setEditComment(false)} className="bg-none px-3 py-2 hover:bg-neutral-700 rounded-full hover:cursor-pointer font-semibold ">Cancel</button>
-                                                    <button onClick={() => handleUpdateComment(newCommentValue, comment.id, comment.user_id, comment.video_id)} className={`${newCommentValue.length >= 1 ? "bg-blue-500 text-black font-semibold" : "bg-neutral-700 text-zinc-400/80"} px-3 py-2 rounded-full hover:cursor-pointer`}>Save</button>     
+                                                    <button onClick={() => {handleUpdateComment(newCommentValue, comment.id, comment.user_id, comment.video_id); setEditComment(false)}} className={`${newCommentValue.length >= 1 ? "bg-blue-500 text-black font-semibold" : "bg-neutral-700 text-zinc-400/80"} px-3 py-2 rounded-full hover:cursor-pointer`}>Save</button>     
                                                 </div>
                                             </div> 
                                         </div>}
