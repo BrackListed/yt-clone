@@ -59,6 +59,7 @@ export function Watch(){
     const [commentTarget, setCommentTarget] = useState(0)
     const [editComment, setEditComment] = useState(false)
     const [newCommentValue, setNewCommentValue] = useState("")
+    const [commentLiked, setCommentLiked] = useState(false)
     useEffect(() => {
         const fetchExpressData = async() => {
             const token = await getToken()
@@ -100,6 +101,12 @@ export function Watch(){
             const response = await axios.get(`http://localhost:5000/comments/${selectedVideo?.id}`, {headers: {Authorization: `Bearer ${token}`}})
             setComments(response.data)
         }
+        const fetchCommentLikedStatus = async() => {
+            if(!selectedUser) return 
+            const token =  await getToken()
+            const response = await axios.get(`http://localhost:5000/comments/like/${User?.id}/${selectedVideo?.id}`, {headers: {Authorization: `Bearer ${token}`}})
+            setCommentLiked(response.data)
+        }
         fetchUserData()
         fetchExpressData()
         fetchSubscriptionData()
@@ -107,6 +114,7 @@ export function Watch(){
         fetchLikedStatus()
         fetchDislikedStatus()
         fetchComments()
+        fetchCommentLikedStatus()
     }, [selectedUser])
 
     useEffect(() => {
@@ -206,8 +214,8 @@ export function Watch(){
                                             </div> 
                                         </div>}
                                         <div className="flex gap-3">
-                                            <span className="flex items-center gap-2"><ThumbsUp className="w-4 h-4"/>0</span>
-                                            <span className="flex items-center gap-2"><ThumbsDown className="w-4 h-4"/>0</span>
+                                            <span onClick={() => likeComment(comment.id, comment.user_id, comment.video_id)} className="flex items-center gap-2"><ThumbsUp className="w-4 h-4"/>0</span>
+                                            <span onClick={() => dislikeComment(comment.id, comment.user_id, comment.video_id)} className="flex items-center gap-2"><ThumbsDown className="w-4 h-4"/>0</span>
                                             <button className="font-semibold text-sm">Reply</button>
                                         </div>
                                     </div>
@@ -268,6 +276,14 @@ export function Watch(){
 
     function deleteComment(id: number, userId: string, videoId: string){
         axios.post(`http://localhost:5000/comments/delete/${id}/${userId}/${videoId}`)
+    }
+
+    function likeComment(id: number, userId: string | null | undefined, videoId: string){
+        axios.post(`http://localhost:5000/comments/like/${id}/${userId}/${videoId}`)
+    }
+
+    function dislikeComment(id: number, userId: string | null | undefined, videoId: string){
+        axios.post(`http://localhost:5000/comments/dislike/${id}/${userId}/${videoId}`)
     }
 
     function timeAgo(date:string){

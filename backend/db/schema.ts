@@ -30,11 +30,25 @@ export const subscriptions = pgTable("subscriptions", {
 })
 
 export const comments = pgTable("comments", {
-    id: integer().primaryKey().generatedAlwaysAsIdentity({increment: 1, startWith: 1}),
+    id: uuid().primaryKey().defaultRandom(),
     content: text("content").notNull(),
     user_id: uuid("user_id").references(() => users.id, {onDelete: "cascade"}),
-    video_id: uuid("video_id").references(() => uploads.id, {onDelete: "cascade"})
+    video_id: uuid("video_id").references(() => uploads.id, {onDelete: "cascade"}),
 })
+
+export const liked_comments = pgTable("liked_comments", {
+    id: integer().primaryKey().generatedAlwaysAsIdentity({increment: 1, startWith: 1}),
+    user_id: uuid("user_id").references(() => users.id, {onDelete: "cascade"}),
+    comment_id: uuid("comment_id").references(() => comments.id, {onDelete: "cascade"})
+})
+
+export const disliked_comments = pgTable("disliked_comments", {
+    id: integer().primaryKey().generatedAlwaysAsIdentity({increment: 1, startWith: 1}),
+    user_id: uuid("user_id").references(() => users.id, {onDelete: "cascade"}),
+    video_id: uuid("video_id").references(() => uploads.id, {onDelete: "cascade"}),
+    comment_id: uuid("comment_id").references(() => comments.id, {onDelete: "cascade"})
+})
+
 
 export const liked_videos = pgTable("liked_videos", {
     id: integer().primaryKey().generatedAlwaysAsIdentity({increment: 1, startWith: 1}),
